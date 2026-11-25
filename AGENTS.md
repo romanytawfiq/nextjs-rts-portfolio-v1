@@ -17,8 +17,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Commands and repo layout
 
-- Single npm package (`package-lock.json`), no workspaces. Scripts: `npm run dev`, `build`, `start`, `lint`. No test, typecheck, format, or codegen script exists; use `npx --no-install tsc --noEmit` for types. Both `lint` and `tsc --noEmit` pass on the current scaffold.
-- App Router under `src/app` (currently only create-next-app scaffold files); path alias `@/*` → `./src/*`. `README.md` is generic boilerplate, not project guidance.
+- Single npm package (`package-lock.json`), no workspaces. Scripts: `npm run dev`, `build`, `start`, `lint`, `typecheck`, `test`, `verify`, `admin:password`, `db:backup`. `npm run typecheck` runs `next typegen` before `tsc --noEmit --incremental false`; bare `tsc` on a fresh clone fails with `TS2304` for generated `PageProps`/`LayoutProps`. `npm run verify` is the full gate (lint + typecheck + build + tests) and passes locally and in CI.
+- App Router under `src/app` with public EN/AR pages and the private admin dashboard; path alias `@/*` → `./src/*`. `README.md` is the setup/operations guide; `docs/` holds the spec, ADRs, deployment runbook and checklist.
 - Pinned toolchain: Next 16.4.6, React 19.3.0, Tailwind 4.3.3 through `@tailwindcss/turbopack`. `next.config.ts` deliberately enables `cacheComponents`, `partialPrefetching`, and a custom `*.css` Turbopack loader rule — don't strip them as scaffold noise.
 - Before writing Next.js code, read the matching guide in `node_modules/next/dist/docs/01-app/` for this installed version. `next dev` rewrites the managed rule block above to match the installed version; keep it committed rather than deleting it.
 

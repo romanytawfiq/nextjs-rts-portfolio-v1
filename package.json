@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "npx --no-install next typegen && npx --no-install tsc --noEmit --incremental false",
     "test": "node --test tests/*.test.mjs",
-    "verify": "npm run lint && npx --no-install tsc --noEmit --incremental false && npm run build && npm test",
+    "verify": "npm run lint && npm run typecheck && npm run build && npm test",
     "admin:password": "node scripts/set-admin-password.mjs",
     "db:backup": "node scripts/backup-db.mjs"
   },

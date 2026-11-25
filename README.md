@@ -43,10 +43,13 @@ GitHub sign-in additionally needs `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `G
 | `npm run dev` | Local development server |
 | `npm run build` / `npm run start` | Production build / serve |
 | `npm run lint` | ESLint |
+| `npm run typecheck` | Generate Next.js route types with `next typegen`, then run non-incremental `tsc --noEmit` |
 | `npm test` | Smoke tests against an isolated temp DB |
-| `npm run verify` | Lint + non-incremental TypeScript + build + tests |
+| `npm run verify` | Lint + typecheck (including generated route types) + build + tests |
 | `npm run admin:password` | Set or rotate the local admin password |
 | `npm run db:backup` | `VACUUM INTO` backup of `SQLITE_PATH` |
+
+Do not run bare `tsc --noEmit` on a fresh clone: Next.js 16 generates `PageProps`, `LayoutProps` and route types into `.next/types/`. Use `npm run typecheck` (or `npm run verify`) so `next typegen` runs first; otherwise TypeScript reports `TS2304` for those generated globals.
 
 ## Environment variables
 
