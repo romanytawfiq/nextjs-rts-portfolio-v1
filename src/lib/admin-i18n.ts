@@ -1,0 +1,216 @@
+import {getTranslations} from "next-intl/server";
+
+import type {Locale} from "@/lib/i18n";
+
+type Widen<T> = T extends string
+  ? string
+  : T extends object
+    ? {[K in keyof T]: Widen<T[K]>}
+    : T;
+
+type AdminMessages = typeof import("../../messages/en.json")["Admin"];
+export type AdminCopy = Widen<AdminMessages>;
+
+// Compatibility wrapper: all strings are resolved through next-intl.
+export async function getAdminCopy(locale: Locale): Promise<AdminCopy> {
+  const t = await getTranslations({locale, namespace: "Admin"});
+  return {
+    "shell": {
+      "admin": t("shell.admin"),
+      "viewSite": t("shell.viewSite"),
+      "viewer": t("shell.viewer"),
+      "viewerPending": t("shell.viewerPending"),
+      "signOut": t("shell.signOut"),
+      "language": t("shell.language"),
+      "theme": t("shell.theme"),
+      "navLabel": t("shell.navLabel"),
+    },
+    "nav": {
+      "overview": t("nav.overview"),
+      "profile": t("nav.profile"),
+      "contact": t("nav.contact"),
+      "social": t("nav.social"),
+      "skills": t("nav.skills"),
+      "projects": t("nav.projects"),
+      "certifications": t("nav.certifications"),
+      "github": t("nav.github"),
+      "localization": t("nav.localization"),
+      "settings": t("nav.settings"),
+      "preview": t("nav.preview"),
+    },
+    "pages": {
+      "overview": {
+        "title": t("pages.overview.title"),
+        "subtitle": t("pages.overview.subtitle"),
+      },
+      "profile": {
+        "title": t("pages.profile.title"),
+        "subtitle": t("pages.profile.subtitle"),
+      },
+      "contact": {
+        "title": t("pages.contact.title"),
+        "subtitle": t("pages.contact.subtitle"),
+      },
+      "social": {
+        "title": t("pages.social.title"),
+        "subtitle": t("pages.social.subtitle"),
+      },
+      "skills": {
+        "title": t("pages.skills.title"),
+        "subtitle": t("pages.skills.subtitle"),
+      },
+      "projects": {
+        "title": t("pages.projects.title"),
+        "subtitle": t("pages.projects.subtitle"),
+      },
+      "certifications": {
+        "title": t("pages.certifications.title"),
+        "subtitle": t("pages.certifications.subtitle"),
+      },
+      "github": {
+        "title": t("pages.github.title"),
+        "subtitle": t("pages.github.subtitle"),
+      },
+      "localization": {
+        "title": t("pages.localization.title"),
+        "subtitle": t("pages.localization.subtitle"),
+      },
+      "settings": {
+        "title": t("pages.settings.title"),
+        "subtitle": t("pages.settings.subtitle"),
+      },
+      "preview": {
+        "title": t("pages.preview.title"),
+        "subtitle": t("pages.preview.subtitle"),
+      },
+      "login": {
+        "title": t("pages.login.title"),
+        "subtitle": t("pages.login.subtitle"),
+      },
+    },
+    "common": {
+      "previewOnly": t("common.previewOnly"),
+      "savePreview": t("common.savePreview"),
+      "cancel": t("common.cancel"),
+      "add": t("common.add"),
+      "edit": t("common.edit"),
+      "remove": t("common.remove"),
+      "up": t("common.up"),
+      "down": t("common.down"),
+      "enabled": t("common.enabled"),
+      "hidden": t("common.hidden"),
+      "visible": t("common.visible"),
+      "published": t("common.published"),
+      "unpublished": t("common.unpublished"),
+      "featured": t("common.featured"),
+      "pending": t("common.pending"),
+      "notProvided": t("common.notProvided"),
+      "open": t("common.open"),
+      "actions": t("common.actions"),
+      "status": t("common.status"),
+      "order": t("common.order"),
+      "english": t("common.english"),
+      "arabic": t("common.arabic"),
+      "light": t("common.light"),
+      "dark": t("common.dark"),
+      "system": t("common.system"),
+      "none": t("common.none"),
+      "editorNotice": t("common.editorNotice"),
+      "jsonEditor": t("common.jsonEditor"),
+      "saved": t("common.saved"),
+      "invalidJson": t("common.invalidJson"),
+    },
+    "form": {
+      "name": t("form.name"),
+      "jobTitle": t("form.jobTitle"),
+      "summary": t("form.summary"),
+      "arabicSummary": t("form.arabicSummary"),
+      "location": t("form.location"),
+      "profileImage": t("form.profileImage"),
+      "resume": t("form.resume"),
+      "phone": t("form.phone"),
+      "whatsapp": t("form.whatsapp"),
+      "email": t("form.email"),
+      "platform": t("form.platform"),
+      "url": t("form.url"),
+      "label": t("form.label"),
+      "category": t("form.category"),
+      "skill": t("form.skill"),
+      "description": t("form.description"),
+      "technologies": t("form.technologies"),
+      "repoUrl": t("form.repoUrl"),
+      "demoUrl": t("form.demoUrl"),
+      "issuer": t("form.issuer"),
+      "issueDate": t("form.issueDate"),
+      "credentialUrl": t("form.credentialUrl"),
+      "defaultLocale": t("form.defaultLocale"),
+      "themeBehavior": t("form.themeBehavior"),
+      "seoTitle": t("form.seoTitle"),
+      "seoDescription": t("form.seoDescription"),
+      "sectionVisibility": t("form.sectionVisibility"),
+      "visibility": t("form.visibility"),
+    },
+    "overview": {
+      "projects": t("overview.projects"),
+      "skills": t("overview.skills"),
+      "certifications": t("overview.certifications"),
+      "contacts": t("overview.contacts"),
+      "syncTitle": t("overview.syncTitle"),
+      "syncNever": t("overview.syncNever"),
+      "quickTitle": t("overview.quickTitle"),
+      "summaryTitle": t("overview.summaryTitle"),
+    },
+    "github": {
+      "connectTitle": t("github.connectTitle"),
+      "connectNote": t("github.connectNote"),
+      "syncButton": t("github.syncButton"),
+      "syncFailed": t("github.syncFailed"),
+      "lastSync": t("github.lastSync"),
+      "repoTable": t("github.repoTable"),
+      "emptyRepos": t("github.emptyRepos"),
+      "forks": t("github.forks"),
+      "archived": t("github.archived"),
+      "featured": t("github.featured"),
+      "hidden": t("github.hidden"),
+    },
+    "localization": {
+      "missing": t("localization.missing"),
+      "needsReview": t("localization.needsReview"),
+      "ready": t("localization.ready"),
+      "field": t("localization.field"),
+      "locale": t("localization.locale"),
+    },
+    "preview": {
+      "englishCard": t("preview.englishCard"),
+      "arabicCard": t("preview.arabicCard"),
+      "lightCard": t("preview.lightCard"),
+      "darkCard": t("preview.darkCard"),
+      "note": t("preview.note"),
+    },
+    "login": {
+      "note": t("login.note"),
+      "back": t("login.back"),
+      "button": t("login.button"),
+      "setup": t("login.setup"),
+      "signedIn": t("login.signedIn"),
+      "passwordTitle": t("login.passwordTitle"),
+      "username": t("login.username"),
+      "password": t("login.password"),
+      "passwordButton": t("login.passwordButton"),
+      "passwordSetup": t("login.passwordSetup"),
+      "separator": t("login.separator"),
+      "errors": {
+        "invalid_credentials": t("login.errors.invalid_credentials"),
+        "too_many_attempts": t("login.errors.too_many_attempts"),
+        "invalid_payload": t("login.errors.invalid_payload"),
+        "invalid_origin": t("login.errors.invalid_origin"),
+        "not_configured": t("login.errors.not_configured"),
+        "oauth_denied": t("login.errors.oauth_denied"),
+        "invalid_state": t("login.errors.invalid_state"),
+        "forbidden": t("login.errors.forbidden"),
+        "token_exchange_failed": t("login.errors.token_exchange_failed"),
+        "oauth_failed": t("login.errors.oauth_failed"),
+      },
+    },
+  };
+}

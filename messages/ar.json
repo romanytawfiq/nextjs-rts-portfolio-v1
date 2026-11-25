@@ -1,0 +1,289 @@
+{
+  "Public": {
+    "metaTitle": "روماني توفيق شحاتة - مطور واجهات أمامية مبتدئ",
+    "metaDescription": "معرض أعمال روماني توفيق شحاتة، مطوّر واجهات أمامية مبتدئ يعمل بـ JavaScript وTypeScript وReact وNext.js.",
+    "skipToContent": "الانتقال إلى المحتوى",
+    "nav": {
+      "about": "نبذة",
+      "skills": "المهارات",
+      "projects": "المشاريع",
+      "github": "GitHub",
+      "certification": "الشهادات",
+      "contact": "تواصل"
+    },
+    "themeToggle": "تبديل المظهر الفاتح والداكن",
+    "languageLabel": "اللغة",
+    "hero": {
+      "kicker": "مطوّر واجهات أمامية · مصر",
+      "ctaPrimary": "اطّلع على أعمالي",
+      "ctaSecondary": "تواصل معي",
+      "locationLabel": "الإقامة",
+      "cv": "CV"
+    },
+    "about": {
+      "title": "نبذة",
+      "kicker": "عنّي",
+      "translationPending": "الصياغة العربية بانتظار مراجعة المالك",
+      "languageLabel": "اللغات"
+    },
+    "skills": {
+      "title": "المهارات التقنية",
+      "kicker": "الأدوات",
+      "groups": {
+        "frontend": "أساسيات الواجهات الأمامية",
+        "languages": "لغات البرمجة",
+        "frameworks": "الأطر والتوجيه",
+        "state": "إدارة الحالة",
+        "forms": "النماذج والتحقق",
+        "backend": "تطوير الخلفية",
+        "databases": "قواعد البيانات",
+        "tools": "الأدوات وسير العمل",
+        "additional": "معارف إضافية"
+      }
+    },
+    "projects": {
+      "title": "مشاريع مختارة",
+      "kicker": "الأعمال",
+      "stackLabel": "التقنيات",
+      "featuresLabel": "المزايا",
+      "repoPending": "رابط المستودع بانتظار بيانات المالك",
+      "demoPending": "رابط النسخة التجريبية بانتظار بيانات المالك",
+      "translationPending": "الوصف العربي بانتظار مراجعة المالك",
+      "githubDescription": "مستودع عام تمت مزامنته من GitHub.",
+      "githubSource": "مزامن من GitHub"
+    },
+    "github": {
+      "title": "GitHub",
+      "kicker": "الكود",
+      "profileCta": "فتح حساب GitHub",
+      "syncPending": "ستظهر المستودعات العامة هنا بعد ربط مزامنة GitHub. لا يتم عرض أي قائمة مستودعات قبل توفر بيانات موثّقة."
+    },
+    "certification": {
+      "title": "الشهادات",
+      "kicker": "التعلّم",
+      "issuerLabel": "الجهة المانحة",
+      "coverageLabel": "المحتوى",
+      "credentialPending": "رابط الشهادة بانتظار بيانات المالك",
+      "translationPending": "التفاصيل العربية بانتظار مراجعة المالك"
+    },
+    "contact": {
+      "title": "تواصل",
+      "kicker": "مرحبًا",
+      "phoneLabel": "الهاتف",
+      "whatsappLabel": "واتساب",
+      "emailNote": "لا يتم نشر بريد إلكتروني؛ يُضاف فقط بموافقة المالك.",
+      "socialLabel": "الصفحات"
+    },
+    "footer": {
+      "note": "مبني للوضوح وإمكانية الوصول واتجاهَي القراءة.",
+      "source": "المحتوى مأخوذ من سيرة المالك الذاتية.",
+      "role": "مطوّر واجهات أمامية مبتدئ",
+      "rights": "جميع الحقوق محفوظة."
+    }
+  },
+  "Admin": {
+    "shell": {
+      "admin": "لوحة تحكم المعرض",
+      "viewSite": "عرض الموقع العام",
+      "viewer": "مسجّل الدخول كـ",
+      "viewerPending": "هوية GitHub بانتظار التحقق",
+      "signOut": "تسجيل الخروج",
+      "language": "اللغة",
+      "theme": "المظهر",
+      "navLabel": "أقسام اللوحة"
+    },
+    "nav": {
+      "overview": "نظرة عامة",
+      "profile": "الملف الشخصي",
+      "contact": "بيانات التواصل",
+      "social": "الروابط الاجتماعية",
+      "skills": "المهارات",
+      "projects": "المشاريع",
+      "certifications": "الشهادات",
+      "github": "GitHub",
+      "localization": "التعريب",
+      "settings": "الإعدادات",
+      "preview": "معاينة"
+    },
+    "pages": {
+      "overview": {
+        "title": "نظرة عامة",
+        "subtitle": "ملخص المحتوى وحالة التكاملات."
+      },
+      "profile": {
+        "title": "الملف الشخصي",
+        "subtitle": "الهوية والنصوص المعرّبة والصورة والسيرة."
+      },
+      "contact": {
+        "title": "بيانات التواصل",
+        "subtitle": "وسائل التواصل المعتمدة وحالة الظهور."
+      },
+      "social": {
+        "title": "الروابط الاجتماعية",
+        "subtitle": "الصفحات العامة مع التحكم بالظهور والترتيب."
+      },
+      "skills": {
+        "title": "المهارات",
+        "subtitle": "مهارات مصنّفة مع التحكم بالظهور والترتيب."
+      },
+      "projects": {
+        "title": "المشاريع",
+        "subtitle": "مشاريع مُنسّقة مع النشر والإبراز وإدارة الوسائط."
+      },
+      "certifications": {
+        "title": "الشهادات",
+        "subtitle": "الشهادات والتفاصيل المعرّبة."
+      },
+      "github": {
+        "title": "GitHub",
+        "subtitle": "مزامنة المستودعات العامة وإعدادات العرض."
+      },
+      "localization": {
+        "title": "التعريب",
+        "subtitle": "تغطية المحتوى بالعربية والإنجليزية."
+      },
+      "settings": {
+        "title": "إعدادات الموقع",
+        "subtitle": "اللغة والمظهر وSEO وظهور الأقسام."
+      },
+      "preview": {
+        "title": "معاينة",
+        "subtitle": "فحص المحتوى العام باللغتين والمظهرين."
+      },
+      "login": {
+        "title": "تسجيل دخول اللوحة",
+        "subtitle": "وصول مقتصر على المالك عبر كلمة مرور محلية أو GitHub."
+      }
+    },
+    "common": {
+      "previewOnly": "معاينة تصميم فقط — لا يتم حفظ أي بيانات ولا إرسال أي طلب.",
+      "savePreview": "حفظ التغييرات",
+      "cancel": "إلغاء",
+      "add": "إضافة",
+      "edit": "تعديل",
+      "remove": "حذف",
+      "up": "تحريك للأعلى",
+      "down": "تحريك للأسفل",
+      "enabled": "مفعّل",
+      "hidden": "مخفي",
+      "visible": "ظاهر",
+      "published": "منشور",
+      "unpublished": "غير منشور",
+      "featured": "مُبرز",
+      "pending": "بانتظار بيانات المالك",
+      "notProvided": "غير متوفر",
+      "open": "فتح",
+      "actions": "إجراءات",
+      "status": "الحالة",
+      "order": "الترتيب",
+      "english": "الإنجليزية",
+      "arabic": "العربية",
+      "light": "فاتح",
+      "dark": "داكن",
+      "system": "النظام",
+      "none": "لا شيء",
+      "editorNotice": "يتم حفظ التغييرات في قاعدة SQLite المحلية مع تحقق من الجهة الخلفية.",
+      "jsonEditor": "محرّر منظّم — يُتحقق منه بـ Zod قبل الحفظ",
+      "saved": "تم الحفظ",
+      "invalidJson": "JSON أو قيمة حقل غير صالحة"
+    },
+    "form": {
+      "name": "الاسم المعروض",
+      "jobTitle": "المسمى الوظيفي",
+      "summary": "النبذة المهنية (الإنجليزية)",
+      "arabicSummary": "النبذة المهنية (العربية)",
+      "location": "الإقامة",
+      "profileImage": "الصورة الشخصية",
+      "resume": "ملف/رابط السيرة الذاتية",
+      "phone": "الهاتف",
+      "whatsapp": "واتساب",
+      "email": "البريد الإلكتروني (اختياري)",
+      "platform": "المنصة",
+      "url": "الرابط",
+      "label": "التسمية",
+      "category": "الفئة",
+      "skill": "المهارة",
+      "description": "الوصف",
+      "technologies": "التقنيات",
+      "repoUrl": "رابط المستودع",
+      "demoUrl": "رابط النسخة التجريبية",
+      "issuer": "الجهة المانحة",
+      "issueDate": "تاريخ الإصدار",
+      "credentialUrl": "رابط الشهادة",
+      "defaultLocale": "اللغة الافتراضية",
+      "themeBehavior": "سلوك المظهر",
+      "seoTitle": "عنوان SEO",
+      "seoDescription": "وصف SEO",
+      "sectionVisibility": "ظهور الأقسام",
+      "visibility": "الظهور"
+    },
+    "overview": {
+      "projects": "مشاريع مُنسّقة",
+      "skills": "مهارات",
+      "certifications": "شهادات",
+      "contacts": "وسائل تواصل",
+      "syncTitle": "مزامنة GitHub",
+      "syncNever": "لم تتم المزامنة بعد",
+      "quickTitle": "إجراءات سريعة",
+      "summaryTitle": "ملخص المحتوى"
+    },
+    "github": {
+      "connectTitle": "الحساب المرتبط",
+      "connectNote": "المالك فقط هو من يمكنه الوصول إلى اللوحة بعد التحقق من هويته على GitHub.",
+      "syncButton": "مزامنة المستودعات",
+      "syncFailed": "فشلت المزامنة",
+      "lastSync": "آخر مزامنة ناجحة",
+      "repoTable": "المستودعات العامة",
+      "emptyRepos": "لا توجد مستودعات تمت مزامنتها بعد. لا يتم اختراع بيانات مستودعات.",
+      "forks": "تضمين الـ forks",
+      "archived": "تضمين المؤرشفة",
+      "featured": "مُبرز",
+      "hidden": "مخفي"
+    },
+    "localization": {
+      "missing": "نصوص بانتظار المالك",
+      "needsReview": "بانتظار مراجعة المالك",
+      "ready": "جاهز",
+      "field": "الحقل",
+      "locale": "اللغة"
+    },
+    "preview": {
+      "englishCard": "الإنجليزية / LTR",
+      "arabicCard": "العربية / RTL",
+      "lightCard": "المظهر الفاتح",
+      "darkCard": "المظهر الداكن",
+      "note": "تفضيل المظهر يُحفظ لكل زائر؛ هذه الروابط تفتح الصفحات العامة الحقيقية."
+    },
+    "login": {
+      "note": "الوصول مقتصر على حساب GitHub الموثّق للمالك أو الحساب المحلي للوحة التحكم.",
+      "back": "العودة للموقع العام",
+      "button": "المتابعة عبر GitHub",
+      "setup": "تسجيل الدخول عبر GitHub مغلق لحد ما يتم ضبط SESSION_SECRET وبيانات OAuth وGITHUB_ADMIN_ID على السيرفر.",
+      "signedIn": "أنت مسجّل الدخول بالفعل.",
+      "passwordTitle": "دخول اللوحة المحلي",
+      "username": "اسم المستخدم",
+      "password": "كلمة المرور",
+      "passwordButton": "الدخول بكلمة المرور",
+      "passwordSetup": "لا توجد كلمة مرور محلية مُعدّة بعد. شغّل: npm run admin:password",
+      "separator": "أو",
+      "errors": {
+        "invalid_credentials": "اسم المستخدم أو كلمة المرور غير صحيحة.",
+        "too_many_attempts": "محاولات كثيرة. الرجاء الانتظار 15 دقيقة.",
+        "invalid_payload": "تحقق من صيغة اسم المستخدم وكلمة المرور.",
+        "invalid_origin": "طلب الدخول جاء من مصدر غير متوقع.",
+        "not_configured": "تسجيل الدخول عبر GitHub غير مُعدّ بعد.",
+        "oauth_denied": "تم إلغاء الموافقة على GitHub.",
+        "invalid_state": "انتهت صلاحية طلب الدخول. حاول مرة أخرى.",
+        "forbidden": "حساب GitHub هذا غير مسموح له بالدخول للوحة.",
+        "token_exchange_failed": "لم يُرجع GitHub رمز وصول.",
+        "oauth_failed": "فشل تسجيل الدخول. حاول مرة أخرى."
+      }
+    }
+  },
+  "NotFound": {
+    "title": "الصفحة غير موجودة",
+    "description": "الصفحة المطلوبة غير موجودة. ارجع إلى الصفحة الرئيسية بالعربية أو الإنجليزية.",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}

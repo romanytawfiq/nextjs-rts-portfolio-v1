@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Romany Tawfiq Shehata — portfolio + private CMS
 
-## Getting Started
+Bilingual (Arabic-first) portfolio with a private admin dashboard and a local SQLite CMS. Public content is CV-derived and editable only through authenticated server-side routes.
 
-First, run the development server:
+**Status:** implementation and local verification are complete. Production is **not** released: domain, Hostinger plan/path verification, credential rotation and a real GitHub sign-in are still open. See `docs/PRODUCTION_CHECKLIST.md`.
+
+## Requirements
+
+- Node.js **24 or newer** (`node:sqlite` is used; see `engines` in `package.json`)
+- npm
+- A persistent writable directory for the SQLite database in production
+
+## Quick start
 
 ```bash
+npm ci
+cp .env.example .env.local
+# Fill in .env.local (see below), then:
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Public site: `http://localhost:3000/ar` (default) and `http://localhost:3000/en`
+- `/` redirects to `/ar`
+- Admin: `/ar/admin/login` or `/en/admin/login`
+- Health check: `/api/health`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Authentication **fails closed**: the admin area is unavailable until `SESSION_SECRET` is at least 32 characters and at least one login method is configured.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Minimum local admin setup
 
-## Learn More
+```bash
+npm run admin:password
+```
 
-To learn more about Next.js, take a look at the following resources:
+Enter the password interactively. The script stores a `scrypt` hash in the SQLite database; never pass the password as an argument or commit it. Changing it invalidates existing password sessions.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+GitHub sign-in additionally needs `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_ADMIN_ID` (stable numeric ID), and a registered callback `<SITE_URL>/api/auth/github/callback`. Only `read:user` is requested — no `repo` scope.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Local development server |
+| `npm run build` / `npm run start` | Production build / serve |
+| `npm run lint` | ESLint |
+| `npm test` | Smoke tests against an isolated temp DB |
+| `npm run verify` | Lint + non-incremental TypeScript + build + tests |
+| `npm run admin:password` | Set or rotate the local admin password |
+| `npm run db:backup` | `VACUUM INTO` backup of `SQLITE_PATH` |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Environment variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Copy `.env.example` to `.env.local`. Never commit `.env*` and never use `NEXT_PUBLIC_*` for secrets.
+
+| Variable | Notes |
+| --- | --- |
+| `SESSION_SECRET` | ≥32 characters; required for signed sessions |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Server-side OAuth credentials |
+| `GITHUB_ADMIN_ID` | Allowlisted numeric GitHub ID; sign-in is locked when empty |
+| `GITHUB_REPO_OWNER` | Public account whose repositories may be synced (`romanytawfiq`) |
+| `GITHUB_TOKEN` | Optional read-only token, no `repo` scope |
+| `SITE_URL` | Absolute origin for callbacks and canonical URLs |
+| `SQLITE_PATH` | SQLite file path; defaults to `.data/portfolio.sqlite` |
+| `TRUST_PROXY` | Set to `1` only behind a trusted reverse proxy |
+
+## Project layout
+
+```text
+src/app/[locale]/(public)/      Public EN/AR pages
+src/app/[locale]/admin/         Private dashboard pages
+src/app/api/                    Auth, CMS and health route handlers
+src/components/                 Shared UI, reveal animation, scroll progress
+src/lib/content.ts              CV-derived seed content (source of truth for seeds)
+src/lib/server/db.ts            SQLite schema, migrations and idempotent seeding
+src/lib/server/content.ts       Public/admin read models and CMS writes
+src/lib/schemas/cms.ts          Zod validation for every CMS section
+messages/{en,ar}.json           next-intl UI copy
+public/certificates/            Published certificate PDFs
+certificaties/                  Owner-supplied source PDFs (unchanged)
+docs/                           Spec, decisions, deployment and checklist
+tests/smoke.test.mjs            End-to-end smoke test
+```
+
+## Content and localization
+
+- Arabic is the default locale; explicit `/en` and `/ar` routes set `dir="ltr"` / `dir="rtl"` at the document level.
+- All UI copy goes through `next-intl` message catalogs. CMS content lives in SQLite.
+- Seed values come from `docs/Romany_tawfiq cv.pdf` and owner-provided files. Do not invent facts, URLs or Arabic prose.
+- Assets published by the owner: `public/rts.jpeg` (hero photo), `public/rts_cv.pdf` (downloadable CV), and 15 certificate PDFs under `public/certificates/`. Certificate titles, issuers and dates were transcribed from `certificaties/`; cards link to both the issuer verification page (where printed on the certificate) and the PDF.
+- Project titles/descriptions remain English-only by owner decision. Unverified fields render as explicit pending states.
+
+## Admin CMS
+
+Dashboard sections: overview, profile, skills, projects, certifications, contact, social links, GitHub sync, localization, preview and settings. Array sections support add/remove/reorder/publish actions plus a validated JSON editor. All page and mutation access is checked server-side (`requireAdminPage` / `authorizeApi`); client validation is not a security boundary.
+
+GitHub sync is server-side, cached, paginated and rate-limit aware. Curated projects are separate from synced repository metadata.
+
+## Deployment
+
+Production target is **Hostinger regular/shared hosting with Node.js Web Apps** (ADR-001). Hostinger replaces `hbuilds/` on each deploy, so `SQLITE_PATH` must point to a persistent path outside it, for example `/home/<user>/portfolio-data/portfolio.sqlite`. Set environment variables in hPanel, never in the repo.
+
+Follow `docs/HOSTINGER_DEPLOYMENT.md` for hPanel settings, initial credential setup, backups, restore drill, monitoring and go-live checks. Run `npm run verify` (also run in `.github/workflows/ci.yml`) before deploying.
+
+## Documentation
+
+- `docs/PROJECT_SPEC.md` — baseline specification and confirmed facts
+- `docs/ADR-001-deployment.md` — hosting/SQLite decision record
+- `docs/ADR-002-i18n-library.md` — next-intl decision record
+- `docs/HOSTINGER_DEPLOYMENT.md` — deployment runbook
+- `docs/PRODUCTION_CHECKLIST.md` — owner blockers and implementation state

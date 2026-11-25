@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  # CI-only placeholders. Auth fails closed in real deployments unless the
+  # host supplies real values; the smoke test generates its own temporary env.
+  SESSION_SECRET: ci-only-session-secret-not-for-production
+  GITHUB_CLIENT_ID: ci-only-client-id
+  GITHUB_CLIENT_SECRET: ci-only-client-secret
+  GITHUB_ADMIN_ID: "1"
+  GITHUB_REPO_OWNER: ci-only-owner
+  SITE_URL: http://127.0.0.1:3000
+  TRUST_PROXY: ""
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint, typecheck, build and smoke test
+        run: npm run verify
+
+      - name: Verify backup script
+        run: node scripts/backup-db.mjs .data/ci-backup.sqlite

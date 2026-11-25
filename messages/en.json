@@ -1,0 +1,289 @@
+{
+  "Public": {
+    "metaTitle": "Romany Tawfiq Shehata - Junior Front-End Developer",
+    "metaDescription": "Portfolio of Romany Tawfiq Shehata, a junior front-end developer working with JavaScript, TypeScript, React and Next.js.",
+    "skipToContent": "Skip to content",
+    "nav": {
+      "about": "About",
+      "skills": "Skills",
+      "projects": "Projects",
+      "github": "GitHub",
+      "certification": "Certification",
+      "contact": "Contact"
+    },
+    "themeToggle": "Toggle light and dark theme",
+    "languageLabel": "Language",
+    "hero": {
+      "kicker": "Front-end developer · Egypt",
+      "ctaPrimary": "See selected work",
+      "ctaSecondary": "Get in touch",
+      "locationLabel": "Based in",
+      "cv": "CV"
+    },
+    "about": {
+      "title": "Profile",
+      "kicker": "About",
+      "translationPending": "Arabic copy awaiting owner review",
+      "languageLabel": "Languages"
+    },
+    "skills": {
+      "title": "Technical skills",
+      "kicker": "Toolkit",
+      "groups": {
+        "frontend": "Front-end fundamentals",
+        "languages": "Programming languages",
+        "frameworks": "Frameworks & routing",
+        "state": "State management",
+        "forms": "Forms & validation",
+        "backend": "Backend development",
+        "databases": "Databases",
+        "tools": "Tools & workflow",
+        "additional": "Additional knowledge"
+      }
+    },
+    "projects": {
+      "title": "Selected projects",
+      "kicker": "Work",
+      "stackLabel": "Stack",
+      "featuresLabel": "Features",
+      "repoPending": "Repository link pending owner input",
+      "demoPending": "Live demo link pending owner input",
+      "translationPending": "Arabic descriptions awaiting owner review",
+      "githubDescription": "Public repository synchronized from GitHub.",
+      "githubSource": "Synced from GitHub"
+    },
+    "github": {
+      "title": "GitHub",
+      "kicker": "Code",
+      "profileCta": "Open GitHub profile",
+      "syncPending": "Public repositories will appear here after the GitHub sync is connected. No repository list is shown before verified data is available."
+    },
+    "certification": {
+      "title": "Certification",
+      "kicker": "Learning",
+      "issuerLabel": "Issuer",
+      "coverageLabel": "Coverage",
+      "credentialPending": "Credential URL pending owner input",
+      "translationPending": "Arabic details awaiting owner review"
+    },
+    "contact": {
+      "title": "Contact",
+      "kicker": "Say hello",
+      "phoneLabel": "Phone",
+      "whatsappLabel": "WhatsApp",
+      "emailNote": "No email address is published; supply one only if the owner approves it.",
+      "socialLabel": "Profiles"
+    },
+    "footer": {
+      "note": "Built for clarity, accessibility and both reading directions.",
+      "source": "Content sourced from the owner's CV.",
+      "role": "Junior Front-End Developer",
+      "rights": "All rights reserved."
+    }
+  },
+  "Admin": {
+    "shell": {
+      "admin": "Portfolio admin",
+      "viewSite": "View public site",
+      "viewer": "Signed in as",
+      "viewerPending": "GitHub identity pending verification",
+      "signOut": "Sign out",
+      "language": "Language",
+      "theme": "Theme",
+      "navLabel": "Admin sections"
+    },
+    "nav": {
+      "overview": "Overview",
+      "profile": "Profile",
+      "contact": "Contact",
+      "social": "Social links",
+      "skills": "Skills",
+      "projects": "Projects",
+      "certifications": "Certifications",
+      "github": "GitHub",
+      "localization": "Localization",
+      "settings": "Settings",
+      "preview": "Preview"
+    },
+    "pages": {
+      "overview": {
+        "title": "Overview",
+        "subtitle": "Content summary and integration status."
+      },
+      "profile": {
+        "title": "Profile",
+        "subtitle": "Identity, localized copy, image and resume."
+      },
+      "contact": {
+        "title": "Contact",
+        "subtitle": "Owner-approved contact methods and visibility."
+      },
+      "social": {
+        "title": "Social links",
+        "subtitle": "Public profiles with enable and reorder controls."
+      },
+      "skills": {
+        "title": "Skills",
+        "subtitle": "Grouped skills with visibility and ordering."
+      },
+      "projects": {
+        "title": "Projects",
+        "subtitle": "Curated projects with publish, feature and media controls."
+      },
+      "certifications": {
+        "title": "Certifications",
+        "subtitle": "Credentials and localized details."
+      },
+      "github": {
+        "title": "GitHub",
+        "subtitle": "Public repository sync and presentation settings."
+      },
+      "localization": {
+        "title": "Localization",
+        "subtitle": "Arabic and English content coverage."
+      },
+      "settings": {
+        "title": "Site settings",
+        "subtitle": "Locale, theme, SEO and section visibility."
+      },
+      "preview": {
+        "title": "Preview",
+        "subtitle": "Inspect public content in both languages and themes."
+      },
+      "login": {
+        "title": "Admin sign in",
+        "subtitle": "Owner-only access with a local password or GitHub."
+      }
+    },
+    "common": {
+      "previewOnly": "Design preview only — no data is saved and no request is sent.",
+      "savePreview": "Save changes",
+      "cancel": "Cancel",
+      "add": "Add",
+      "edit": "Edit",
+      "remove": "Remove",
+      "up": "Move up",
+      "down": "Move down",
+      "enabled": "Enabled",
+      "hidden": "Hidden",
+      "visible": "Visible",
+      "published": "Published",
+      "unpublished": "Unpublished",
+      "featured": "Featured",
+      "pending": "Pending owner input",
+      "notProvided": "Not provided",
+      "open": "Open",
+      "actions": "Actions",
+      "status": "Status",
+      "order": "Order",
+      "english": "English",
+      "arabic": "Arabic",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "none": "None",
+      "editorNotice": "Changes are saved to the local SQLite database and validated on the server.",
+      "jsonEditor": "Structured editor — validated with Zod before saving",
+      "saved": "Saved",
+      "invalidJson": "Invalid JSON or field value"
+    },
+    "form": {
+      "name": "Display name",
+      "jobTitle": "Job title",
+      "summary": "Professional summary (English)",
+      "arabicSummary": "Professional summary (Arabic)",
+      "location": "Location",
+      "profileImage": "Profile image",
+      "resume": "Resume file / URL",
+      "phone": "Phone",
+      "whatsapp": "WhatsApp",
+      "email": "Email (optional)",
+      "platform": "Platform",
+      "url": "URL",
+      "label": "Label",
+      "category": "Category",
+      "skill": "Skill",
+      "description": "Description",
+      "technologies": "Technologies",
+      "repoUrl": "Repository URL",
+      "demoUrl": "Live demo URL",
+      "issuer": "Issuer",
+      "issueDate": "Issue date",
+      "credentialUrl": "Credential URL",
+      "defaultLocale": "Default locale",
+      "themeBehavior": "Theme behavior",
+      "seoTitle": "SEO title",
+      "seoDescription": "SEO description",
+      "sectionVisibility": "Section visibility",
+      "visibility": "Visibility"
+    },
+    "overview": {
+      "projects": "Curated projects",
+      "skills": "Skill entries",
+      "certifications": "Certifications",
+      "contacts": "Contact methods",
+      "syncTitle": "GitHub sync",
+      "syncNever": "Never synced",
+      "quickTitle": "Quick actions",
+      "summaryTitle": "Content summary"
+    },
+    "github": {
+      "connectTitle": "Connected account",
+      "connectNote": "Only the owner's verified GitHub identity may access the dashboard.",
+      "syncButton": "Sync repositories",
+      "syncFailed": "Sync failed",
+      "lastSync": "Last successful sync",
+      "repoTable": "Public repositories",
+      "emptyRepos": "No repositories have been synchronized yet. Repository data is not invented.",
+      "forks": "Include forks",
+      "archived": "Include archived",
+      "featured": "Featured",
+      "hidden": "Hidden"
+    },
+    "localization": {
+      "missing": "Pending owner copy",
+      "needsReview": "Needs owner review",
+      "ready": "Ready",
+      "field": "Field",
+      "locale": "Locale"
+    },
+    "preview": {
+      "englishCard": "English / LTR",
+      "arabicCard": "Arabic / RTL",
+      "lightCard": "Light theme",
+      "darkCard": "Dark theme",
+      "note": "Theme preference is stored per visitor; these links open the real public pages."
+    },
+    "login": {
+      "note": "Access is restricted to the owner's verified GitHub account or the local admin account.",
+      "back": "Back to public site",
+      "button": "Continue with GitHub",
+      "setup": "GitHub sign-in is locked until SESSION_SECRET, OAuth credentials and GITHUB_ADMIN_ID are configured server-side.",
+      "signedIn": "You are already signed in.",
+      "passwordTitle": "Local admin sign in",
+      "username": "Username",
+      "password": "Password",
+      "passwordButton": "Sign in with password",
+      "passwordSetup": "No local password is configured yet. Run: npm run admin:password",
+      "separator": "or",
+      "errors": {
+        "invalid_credentials": "Incorrect username or password.",
+        "too_many_attempts": "Too many attempts. Please wait 15 minutes.",
+        "invalid_payload": "Check the username and password format.",
+        "invalid_origin": "This sign-in request came from an unexpected origin.",
+        "not_configured": "GitHub sign-in is not configured yet.",
+        "oauth_denied": "GitHub authorization was cancelled.",
+        "invalid_state": "The sign-in request expired. Please try again.",
+        "forbidden": "This GitHub account is not on the admin allowlist.",
+        "token_exchange_failed": "GitHub did not return an access token.",
+        "oauth_failed": "Sign-in failed. Please try again."
+      }
+    }
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "The requested page does not exist. Return to the English or Arabic portfolio home.",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}

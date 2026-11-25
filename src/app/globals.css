@@ -1,26 +1,120 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f4ef;
+  --surface: #ffffff;
+  --surface-muted: #efece4;
+  --foreground: #1b1d1a;
+  --muted: #5d615b;
+  --line: #d9d5cb;
+  --accent: #a8510b;
+  --accent-soft: #f7e8d6;
+  --accent-contrast: #ffffff;
+}
+
+[data-theme="dark"] {
+  --background: #0d1110;
+  --surface: #141a18;
+  --surface-muted: #1a211f;
+  --foreground: #f2f0e9;
+  --muted: #a2aaa3;
+  --line: #2a332f;
+  --accent: #e0a458;
+  --accent-soft: #2b2114;
+  --accent-contrast: #17120b;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-contrast: var(--accent-contrast);
+  --font-sans: var(--font-geist-sans), "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+
+  html[lang="ar"] body {
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  }
+
+  section[id] {
+    scroll-margin-top: 6rem;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-contrast);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.theme-icon-dark {
+  display: none;
+}
+
+[data-theme="dark"] .theme-icon-light {
+  display: none;
+}
+
+[data-theme="dark"] .theme-icon-dark {
+  display: inline-flex;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 85%);
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+  opacity: 0.35;
+}
+
+.monogram {
+  background: radial-gradient(circle at 30% 20%, var(--accent-soft), transparent 62%), var(--surface);
+}
+
+.scroll-progress {
+  transform-origin: left center;
+  transition: transform 120ms ease-out;
+  will-change: transform;
+}
+
+html[dir="rtl"] .scroll-progress {
+  transform-origin: right center;
 }
