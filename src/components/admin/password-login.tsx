@@ -1,23 +1,20 @@
 "use client";
 
-import axios from "axios";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { primaryButtonClass } from "@/components/admin/ui";
+import { normalizeAuthErrorCode } from "@/lib/auth-error";
+import {
+  loginSchema,
+  MAX_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH,
+  USERNAME_PATTERN,
+} from "@/lib/auth-validation";
 
-const USERNAME_PATTERN = /^[a-zA-Z0-9_.-]{3,64}$/;
-const MIN_PASSWORD_LENGTH = 12;
-const MAX_PASSWORD_LENGTH = 200;
-
-const schema = z.object({
-  username: z.string().trim().regex(USERNAME_PATTERN),
-  password: z.string().min(MIN_PASSWORD_LENGTH).max(MAX_PASSWORD_LENGTH),
-});
-
-type FormValues = z.infer<typeof schema>;
+type FormValues = { username: string; password: string };
 
 export function PasswordLogin({
   locale,
@@ -43,7 +40,7 @@ export function PasswordLogin({
   const { errors } = formState;
 
   const onSubmit = handleSubmit(async (values) => {
-    const parsed = schema.safeParse(values);
+    const parsed = loginSchema.safeParse(values);
     if (!parsed.success) {
       setError(labels.errors.invalid_payload);
       return;
@@ -51,14 +48,20 @@ export function PasswordLogin({
 
     setError(null);
     try {
-      await axios.post("/api/auth/password/login", parsed.data);
+      const result = await signIn("credentials", {
+        ...parsed.data,
+        redirect: false,
+        redirectTo: `/${locale}/admin`,
+      });
+      if (result?.error || !result?.ok) {
+        const code = normalizeAuthErrorCode(result?.error, result?.code);
+        setError(labels.errors[code] ?? labels.errors.invalid_credentials);
+        return;
+      }
       router.replace(`/${locale}/admin`);
       router.refresh();
-    } catch (caught) {
-      const code = axios.isAxiosError(caught)
-        ? String(caught.response?.data?.error ?? "invalid_credentials")
-        : "invalid_credentials";
-      setError(labels.errors[code] ?? labels.errors.invalid_credentials);
+    } catch {
+      setError(labels.errors.invalid_credentials);
     }
   });
 

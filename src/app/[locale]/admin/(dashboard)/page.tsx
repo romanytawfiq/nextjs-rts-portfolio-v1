@@ -6,6 +6,9 @@ import { defaultLocale, isLocale } from "@/lib/i18n";
 import { requireAdminPage } from "@/lib/server/auth";
 import { getAdminContent } from "@/lib/server/content";
 
+// Auth.js reads the session at request time; this segment is allowed to block.
+export const instant = false;
+
 export default async function AdminOverviewPage({
   params,
 }: PageProps<"/[locale]/admin">) {

@@ -1,103 +1,44 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
-
-import { cacheLife } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
+import { auth } from "@/auth";
+import {
+  allowedAdminId,
+  authSecret,
+  isOAuthConfigured,
+  isPasswordAuthConfigured,
+} from "@/lib/server/auth-env";
+import type { AdminSession } from "@/lib/server/auth-types";
 import { getDb } from "@/lib/server/db";
 import { getPasswordCredential } from "@/lib/server/password";
+import { isAllowedOrigin } from "@/lib/server/request-origin";
 
-const SESSION_COOKIE = "rts_session";
-const STATE_COOKIE = "rts_oauth_state";
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
+export type Session = AdminSession;
 
-export type SessionMethod = "github" | "password";
+export { isOAuthConfigured, isPasswordAuthConfigured };
 
-export type Session = {
-  sub: number;
-  login: string;
-  method: SessionMethod;
-  ver: string;
-  exp: number;
-};
+// Auth.js owns the encrypted session cookie. This wrapper keeps the existing
+// page/API authorization surface while revalidating identity against SQLite on
+// every request, so password rotation and allowlist changes still take effect.
+async function readSessionUncached(): Promise<Session | null> {
+  if (!authSecret()) return null;
 
-function sessionSecret(): string | null {
-  const secret = process.env.SESSION_SECRET;
-  return secret && secret.length >= 32 ? secret : null;
-}
+  const authSession = await auth();
+  const user = authSession?.user;
+  if (!user || typeof user.login !== "string" || !user.login) return null;
+  if (user.method !== "github" && user.method !== "password") return null;
+  if (!Number.isInteger(user.githubId)) return null;
 
-export function allowedAdminId(): number | null {
-  const raw = process.env.GITHUB_ADMIN_ID?.trim();
-  if (!raw || !/^\d+$/.test(raw)) return null;
-  return Number(raw);
-}
+  const expires = Date.parse(authSession.expires);
+  if (!Number.isFinite(expires) || expires <= Date.now()) return null;
 
-export function isOAuthConfigured() {
-  return Boolean(
-    process.env.GITHUB_CLIENT_ID &&
-      process.env.GITHUB_CLIENT_SECRET &&
-      sessionSecret() &&
-      allowedAdminId(),
-  );
-}
-
-function sign(payload: string, secret: string) {
-  return createHmac("sha256", secret).update(payload).digest("base64url");
-}
-
-export function createSessionToken(input: {
-  sub: number;
-  login: string;
-  method: SessionMethod;
-  ver: string;
-}) {
-  const secret = sessionSecret();
-  if (!secret) throw new Error("SESSION_SECRET is missing or too short");
-  const payload: Session = {
-    sub: input.sub,
-    login: input.login,
-    method: input.method,
-    ver: input.ver,
-    exp: Date.now() + SESSION_MAX_AGE * 1000,
+  const session: Session = {
+    sub: user.githubId,
+    login: user.login,
+    method: user.method,
+    ver: user.ver,
+    exp: expires,
   };
-  const encoded = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  return `v1.${encoded}.${sign(encoded, secret)}`;
-}
-
-function verifySessionToken(token: string | undefined): Session | null {
-  const secret = sessionSecret();
-  if (!secret || !token) return null;
-  const parts = token.split(".");
-  if (parts.length !== 3 || parts[0] !== "v1") return null;
-
-  const expected = sign(parts[1], secret);
-  const actual = parts[2];
-  if (expected.length !== actual.length) return null;
-  if (!timingSafeEqual(Buffer.from(expected), Buffer.from(actual))) return null;
-
-  try {
-    const parsed: unknown = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
-    if (
-      typeof parsed !== "object" ||
-      parsed === null ||
-      typeof (parsed as Session).sub !== "number" ||
-      typeof (parsed as Session).login !== "string" ||
-      ((parsed as Session).method !== "github" &&
-        (parsed as Session).method !== "password") ||
-      typeof (parsed as Session).ver !== "string" ||
-      typeof (parsed as Session).exp !== "number"
-    ) {
-      return null;
-    }
-    return parsed as Session;
-  } catch {
-    return null;
-  }
-}
-
-async function readSession(): Promise<Session | null> {
-  const session = verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value);
-  if (!session || session.exp <= Date.now()) return null;
 
   if (session.method === "password") {
     const credential = getPasswordCredential();
@@ -122,97 +63,29 @@ async function readSession(): Promise<Session | null> {
   return session;
 }
 
+// Auth.js creates a CSRF token even for a session read. That uses
+// crypto.getRandomValues(), which Cache Components cannot prerender. Defer the
+// whole page session read to request time; the admin loading boundary provides
+// the Suspense fallback.
+async function readSession(): Promise<Session | null> {
+  await connection();
+  return readSessionUncached();
+}
+
 export async function getSession(): Promise<Session | null> {
-  "use cache: private";
-  // Auth state must not stay fresh forever in the browser router after logout
-  // or password changes. "seconds" keeps only a 30s client stale window.
-  cacheLife("seconds");
   return readSession();
 }
 
-// Route Handlers cannot use private cache functions; they read the same cookie
-// directly at request time.
-export async function getSessionForRoute(): Promise<Session | null> {
-  return readSession();
-}
-
-export async function setSessionCookie(input: {
-  sub: number;
-  login: string;
-  method: SessionMethod;
-  ver: string;
-}) {
-  const store = await cookies();
-  store.set(SESSION_COOKIE, createSessionToken(input), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: SESSION_MAX_AGE,
-  });
-}
-
-export async function clearSessionCookie() {
-  (await cookies()).delete(SESSION_COOKIE);
-}
-
-export async function setOAuthState(state: string) {
-  (await cookies()).set(STATE_COOKIE, state, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 600,
-  });
-}
-
-export async function consumeOAuthState(value: string): Promise<boolean> {
-  const store = await cookies();
-  const stored = store.get(STATE_COOKIE)?.value;
-  store.delete(STATE_COOKIE);
-  return Boolean(stored && stored.length === value.length && timingSafeEqual(Buffer.from(stored), Buffer.from(value)));
+// Route Handlers already run per request and have no static shell, so they do
+// not need connection(); auth() still reads the cookie at request time.
+async function getSessionForRoute(): Promise<Session | null> {
+  return readSessionUncached();
 }
 
 export async function requireAdminPage(locale: string): Promise<Session> {
   const session = await getSession();
   if (!session) redirect(`/${locale}/admin/login`);
   return session;
-}
-
-function isLoopbackHost(hostname: string): boolean {
-  const host = hostname.replace(/^\[|\]$/g, "").toLowerCase();
-  return host === "localhost" || host === "::1" || /^127\.\d+\.\d+\.\d+$/.test(host);
-}
-
-export function isAllowedOrigin(request: Request): boolean {
-  const origin = request.headers.get("origin");
-  if (!origin) return true;
-
-  const received = origin.replace(/\/$/, "");
-  const requestUrl = new URL(request.url);
-  const allowed = new Set<string>([requestUrl.origin]);
-
-  let configured: URL | null = null;
-  try {
-    configured = process.env.SITE_URL ? new URL(process.env.SITE_URL) : null;
-  } catch {
-    configured = null;
-  }
-  if (configured) {
-    allowed.add(configured.origin);
-
-    // Next can normalize request.url to SITE_URL even when the browser used a
-    // loopback alias. Allow only the same loopback aliases, never an arbitrary
-    // Host header supplied by a caller.
-    if (isLoopbackHost(configured.hostname)) {
-      const port = configured.port ? `:${configured.port}` : "";
-      for (const alias of ["localhost", "127.0.0.1", "[::1]"]) {
-        allowed.add(`${configured.protocol}//${alias}${port}`);
-      }
-    }
-  }
-
-  return allowed.has(received);
 }
 
 export async function authorizeApi(
@@ -233,27 +106,4 @@ export async function authorizeApi(
     };
   }
   return { ok: true, session };
-}
-
-export function recordLogin(session: { sub: number; login: string }) {
-  const db = getDb();
-  const now = new Date().toISOString();
-  db.prepare(
-    `INSERT INTO admin_allowlist (github_id, login, enabled, created_at, last_login_at)
-     VALUES (?, ?, 1, ?, ?)
-     ON CONFLICT(github_id) DO UPDATE SET login = excluded.login,
-       enabled = 1, last_login_at = excluded.last_login_at`,
-  ).run(session.sub, session.login, now, now);
-  db.prepare(
-    "INSERT INTO audit_events (github_id, action, detail, created_at) VALUES (?, 'auth.login', ?, ?)",
-  ).run(session.sub, session.login, now);
-}
-
-export function recordPasswordLogin(username: string) {
-  const db = getDb();
-  const now = new Date().toISOString();
-  db.prepare("UPDATE admin_credentials SET last_login_at = ? WHERE id = 1").run(now);
-  db.prepare(
-    "INSERT INTO audit_events (github_id, action, detail, created_at) VALUES (NULL, 'auth.login.password', ?, ?)",
-  ).run(username, now);
 }

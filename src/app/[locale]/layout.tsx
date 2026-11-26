@@ -85,6 +85,7 @@ export default async function LocaleLayout({
     <html
       lang={activeLocale}
       dir={activeLocale === "ar" ? "rtl" : "ltr"}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >

@@ -19,6 +19,9 @@ type SocialLink = {
   sortOrder: number;
 };
 
+// Auth.js reads the session at request time; this segment is allowed to block.
+export const instant = false;
+
 export default async function AdminSocialLinksPage({
   params,
 }: PageProps<"/[locale]/admin/social-links">) {

@@ -3,13 +3,7 @@ import { notFound } from "next/navigation";
 
 import { GitHubIcon, LinkedInIcon, MapPinIcon } from "@/components/icons";
 import { Reveal } from "@/components/reveal";
-import {
-  Chip,
-  ExternalLink,
-  PendingBadge,
-  PendingLink,
-  SectionHeading,
-} from "@/components/ui";
+import { Chip, ExternalLink, SectionHeading } from "@/components/ui";
 import { languages } from "@/lib/content";
 import { getDictionary, isLocale } from "@/lib/i18n";
 import { getPublicContent } from "@/lib/server/content";
@@ -97,10 +91,7 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
           <SectionHeading index="01" kicker={t.about.kicker} title={t.about.title} />
           <Reveal className="grid gap-8 md:grid-cols-[1.4fr_0.6fr]">
             <div>
-              {arabic && !content.profile.summaryAr && (
-                <PendingBadge>{t.about.translationPending}</PendingBadge>
-              )}
-              <p className="mt-4 max-w-3xl text-lg leading-9 text-muted">{summary}</p>
+              <p className="max-w-3xl text-lg leading-9 text-muted">{summary}</p>
             </div>
             <dl className="grid content-start gap-4">
               <div className="rounded-xl border border-line bg-surface p-5">
@@ -193,19 +184,16 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                   </div>
                 )}
 
-                <div className="mt-auto flex flex-wrap gap-2 pt-8">
-                  {project.repoUrl ? (
-                    <ExternalLink href={project.repoUrl}>GitHub</ExternalLink>
-                  ) : (
-                    <PendingLink>{t.projects.repoPending}</PendingLink>
-                  )}
-                  {project.source !== "github" &&
-                    (project.demoUrl ? (
+                {(project.repoUrl || (project.source !== "github" && project.demoUrl)) && (
+                  <div className="mt-auto flex flex-wrap gap-2 pt-8">
+                    {project.repoUrl && (
+                      <ExternalLink href={project.repoUrl}>GitHub</ExternalLink>
+                    )}
+                    {project.source !== "github" && project.demoUrl && (
                       <ExternalLink href={project.demoUrl}>Demo</ExternalLink>
-                    ) : (
-                      <PendingLink>{t.projects.demoPending}</PendingLink>
-                    ))}
-                </div>
+                    )}
+                  </div>
+                )}
               </article>
             ))}
           </Reveal>
@@ -221,11 +209,9 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                 {t.github.profileCta}
               </ExternalLink>
             </div>
-            <div className="rounded-2xl border border-dashed border-line bg-surface p-6">
-              <GitHubIcon className="size-8 text-accent" />
-              {content.github.repos.length === 0 ? (
-                <p className="mt-5 leading-7 text-muted">{t.github.syncPending}</p>
-              ) : (
+            {content.github.repos.length > 0 && (
+              <div className="rounded-2xl border border-dashed border-line bg-surface p-6">
+                <GitHubIcon className="size-8 text-accent" />
                 <ul className="mt-5 grid gap-3">
                   {content.github.repos.map((repo) => (
                     <li key={repo.fullName} className="rounded-lg border border-line p-3">
@@ -236,8 +222,8 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                     </li>
                   ))}
                 </ul>
-              )}
-            </div>
+              </div>
+            )}
           </Reveal>
         </section>
       )}
@@ -252,11 +238,6 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
           <Reveal className="grid gap-4">
             {content.certifications.map((item) => (
               <article key={item.title} className="rounded-2xl border border-line bg-surface p-6">
-                {arabic && (
-                  <div className="mb-4">
-                    <PendingBadge>{t.certification.translationPending}</PendingBadge>
-                  </div>
-                )}
                 <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
                 <p className="mt-4 text-sm text-muted">
                   <span className="uppercase tracking-[0.2em]">{t.certification.issuerLabel}</span>:{" "}
@@ -279,18 +260,18 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                     </ul>
                   </div>
                 )}
-                <div className="mt-6 flex flex-wrap items-center gap-4">
-                  {item.credentialUrl ? (
-                    <ExternalLink href={item.credentialUrl}>
-                      {t.certification.issuerLabel}
-                    </ExternalLink>
-                  ) : (
-                    <PendingLink>{t.certification.credentialPending}</PendingLink>
-                  )}
-                  {item.documentUrl && (
-                    <ExternalLink href={item.documentUrl}>PDF</ExternalLink>
-                  )}
-                </div>
+                {(item.credentialUrl || item.documentUrl) && (
+                  <div className="mt-6 flex flex-wrap items-center gap-4">
+                    {item.credentialUrl && (
+                      <ExternalLink href={item.credentialUrl}>
+                        {t.certification.issuerLabel}
+                      </ExternalLink>
+                    )}
+                    {item.documentUrl && (
+                      <ExternalLink href={item.documentUrl}>PDF</ExternalLink>
+                    )}
+                  </div>
+                )}
               </article>
             ))}
           </Reveal>
@@ -346,7 +327,6 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                 </div>
               </div>
             </Reveal>
-            {!content.contact.email && <p className="mt-6 text-xs text-muted">{t.contact.emailNote}</p>}
           </div>
         </section>
       )}

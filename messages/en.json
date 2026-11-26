@@ -23,7 +23,6 @@
     "about": {
       "title": "Profile",
       "kicker": "About",
-      "translationPending": "Arabic copy awaiting owner review",
       "languageLabel": "Languages"
     },
     "skills": {
@@ -46,32 +45,25 @@
       "kicker": "Work",
       "stackLabel": "Stack",
       "featuresLabel": "Features",
-      "repoPending": "Repository link pending owner input",
-      "demoPending": "Live demo link pending owner input",
-      "translationPending": "Arabic descriptions awaiting owner review",
       "githubDescription": "Public repository synchronized from GitHub.",
       "githubSource": "Synced from GitHub"
     },
     "github": {
       "title": "GitHub",
       "kicker": "Code",
-      "profileCta": "Open GitHub profile",
-      "syncPending": "Public repositories will appear here after the GitHub sync is connected. No repository list is shown before verified data is available."
+      "profileCta": "Open GitHub profile"
     },
     "certification": {
       "title": "Certification",
       "kicker": "Learning",
       "issuerLabel": "Issuer",
-      "coverageLabel": "Coverage",
-      "credentialPending": "Credential URL pending owner input",
-      "translationPending": "Arabic details awaiting owner review"
+      "coverageLabel": "Coverage"
     },
     "contact": {
       "title": "Contact",
       "kicker": "Say hello",
       "phoneLabel": "Phone",
       "whatsappLabel": "WhatsApp",
-      "emailNote": "No email address is published; supply one only if the owner approves it.",
       "socialLabel": "Profiles"
     },
     "footer": {
@@ -86,7 +78,6 @@
       "admin": "Portfolio admin",
       "viewSite": "View public site",
       "viewer": "Signed in as",
-      "viewerPending": "GitHub identity pending verification",
       "signOut": "Sign out",
       "language": "Language",
       "theme": "Theme",
@@ -101,7 +92,6 @@
       "projects": "Projects",
       "certifications": "Certifications",
       "github": "GitHub",
-      "localization": "Localization",
       "settings": "Settings",
       "preview": "Preview"
     },
@@ -138,10 +128,6 @@
         "title": "GitHub",
         "subtitle": "Public repository sync and presentation settings."
       },
-      "localization": {
-        "title": "Localization",
-        "subtitle": "Arabic and English content coverage."
-      },
       "settings": {
         "title": "Site settings",
         "subtitle": "Locale, theme, SEO and section visibility."
@@ -170,11 +156,11 @@
       "published": "Published",
       "unpublished": "Unpublished",
       "featured": "Featured",
-      "pending": "Pending owner input",
       "notProvided": "Not provided",
       "open": "Open",
       "actions": "Actions",
       "status": "Status",
+      "field": "Field",
       "order": "Order",
       "english": "English",
       "arabic": "Arabic",
@@ -240,13 +226,6 @@
       "featured": "Featured",
       "hidden": "Hidden"
     },
-    "localization": {
-      "missing": "Pending owner copy",
-      "needsReview": "Needs owner review",
-      "ready": "Ready",
-      "field": "Field",
-      "locale": "Locale"
-    },
     "preview": {
       "englishCard": "English / LTR",
       "arabicCard": "Arabic / RTL",
@@ -258,7 +237,7 @@
       "note": "Access is restricted to the owner's verified GitHub account or the local admin account.",
       "back": "Back to public site",
       "button": "Continue with GitHub",
-      "setup": "GitHub sign-in is locked until SESSION_SECRET, OAuth credentials and GITHUB_ADMIN_ID are configured server-side.",
+      "setup": "GitHub sign-in is locked until AUTH_SECRET, OAuth credentials and GITHUB_ADMIN_ID are configured server-side.",
       "signedIn": "You are already signed in.",
       "passwordTitle": "Local admin sign in",
       "username": "Username",
@@ -275,7 +254,6 @@
         "oauth_denied": "GitHub authorization was cancelled.",
         "invalid_state": "The sign-in request expired. Please try again.",
         "forbidden": "This GitHub account is not on the admin allowlist.",
-        "token_exchange_failed": "GitHub did not return an access token.",
         "oauth_failed": "Sign-in failed. Please try again."
       }
     }

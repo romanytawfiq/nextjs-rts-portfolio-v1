@@ -159,17 +159,21 @@ function request(pathname, options = {}) {
     method = "GET",
     headers: extraHeaders = {},
     body,
+    formBody,
     cookie,
     redirect = "manual",
     withOrigin = true,
   } = options;
 
   const headers = { ...extraHeaders };
-  if (withOrigin) headers.origin = origin;
+  if (withOrigin && !headers.origin && !headers.Origin) headers.origin = origin;
   if (cookie) headers.cookie = cookie;
 
   let payload;
-  if (body !== undefined) {
+  if (formBody !== undefined) {
+    headers["content-type"] = "application/x-www-form-urlencoded";
+    payload = formBody.toString();
+  } else if (body !== undefined) {
     headers["content-type"] = "application/json";
     payload = typeof body === "string" ? body : JSON.stringify(body);
   }
@@ -201,15 +205,59 @@ async function readJson(response, expectedStatus) {
   return parsed;
 }
 
+function setCookies(response) {
+  if (typeof response.headers.getSetCookie === "function") {
+    return response.headers.getSetCookie();
+  }
+  const single = response.headers.get("set-cookie");
+  return single ? [single] : [];
+}
+
+function findSessionCookie(response) {
+  return setCookies(response).find((value) => /authjs\.session-token=/i.test(value));
+}
+
 function tamperSessionCookie(cookie) {
-  const lastDot = cookie.lastIndexOf(".");
-  assert.ok(lastDot > 0, "unexpected session cookie format");
-  const signature = cookie.slice(lastDot + 1);
-  assert.ok(signature.length > 0, "unexpected session cookie signature");
-  const changed = signature.endsWith("A")
-    ? `${signature.slice(0, -1)}B`
-    : `${signature.slice(0, -1)}A`;
-  return `${cookie.slice(0, lastDot + 1)}${changed}`;
+  const equals = cookie.indexOf("=");
+  assert.ok(equals > 0, "unexpected session cookie format");
+  const name = cookie.slice(0, equals + 1);
+  const value = cookie.slice(equals + 1);
+  assert.ok(value.length > 0, "unexpected session cookie value");
+  // Mutate the first byte of the encrypted payload segment. Changing the last
+  // base64url character can be a no-op because its trailing bits are padding.
+  const firstDot = value.indexOf(".");
+  const index = firstDot > 0 ? firstDot + 1 : 0;
+  const original = value[index] ?? "A";
+  const replacement = original === "A" ? "B" : "A";
+  const changed = `${value.slice(0, index)}${replacement}${value.slice(index + 1)}`;
+  return `${name}${changed}`;
+}
+
+async function authCsrf() {
+  const response = await request("/api/auth/csrf");
+  const body = await readJson(response, 200);
+  assert.ok(body.csrfToken, "Auth.js did not return a CSRF token");
+  const cookie = setCookies(response).find((value) => /authjs\.csrf-token=/i.test(value));
+  assert.ok(cookie, "Auth.js did not set a CSRF cookie");
+  return { token: body.csrfToken, cookie: cookie.split(";")[0].trim() };
+}
+
+async function authCallback(path, params, extra = {}) {
+  const csrf = await authCsrf();
+  const response = await request(path, {
+    method: "POST",
+    ...extra,
+    cookie: extra.cookie ? `${extra.cookie}; ${csrf.cookie}` : csrf.cookie,
+    formBody: new URLSearchParams({
+      csrfToken: csrf.token,
+      callbackUrl: "/en/admin",
+      ...params,
+    }),
+    headers: { "x-auth-return-redirect": "1", ...extra.headers },
+  });
+  const body = await readJson(response, 200);
+  assert.ok(typeof body.url === "string", "Auth.js did not return a redirect URL");
+  return { response, url: new URL(body.url, baseUrl) };
 }
 
 function markSyncCached() {
@@ -259,9 +307,11 @@ before(async () => {
     ...process.env,
     NODE_ENV: "production",
     SQLITE_PATH: sqlitePath,
-    SESSION_SECRET: randomBytes(48).toString("base64url"),
-    GITHUB_CLIENT_ID: "smoke-client-id",
-    GITHUB_CLIENT_SECRET: "smoke-client-secret",
+    AUTH_SECRET: randomBytes(48).toString("base64url"),
+    AUTH_TRUST_HOST: "1",
+    AUTH_URL: baseUrl,
+    AUTH_GITHUB_ID: "smoke-client-id",
+    AUTH_GITHUB_SECRET: "smoke-client-secret",
     GITHUB_ADMIN_ID: "4242424242",
     GITHUB_REPO_OWNER: "smoke-owner",
     GITHUB_TOKEN: "",
@@ -321,36 +371,52 @@ test("production auth, CMS, sync, OAuth and public smoke flow", { timeout: 120_0
   assert.equal(rootRedirect.status, 307);
   assert.match(rootRedirect.headers.get("location") ?? "", /\/ar(?:$|[?#])/);
 
-  // Password login validation, origin check, successful login and cookie flags.
-  const badOrigin = await request("/api/auth/password/login", {
-    method: "POST",
-    withOrigin: false,
-    headers: { origin: "https://evil.example" },
-    body: { username: adminUsername, password: adminPassword },
+  // Auth.js error redirects keep the requested locale and use existing messages.
+  const localizedError = await request("/api/auth/error-page?error=AccessDenied", {
+    cookie: "rts_auth_locale=ar",
   });
-  const badOriginBody = await readJson(badOrigin, 403);
-  assert.equal(badOriginBody.error, "invalid_origin");
+  assert.equal(localizedError.status, 307);
+  assert.match(
+    localizedError.headers.get("location") ?? "",
+    /\/ar\/admin\/login\?error=forbidden$/,
+  );
 
-  const invalidPayload = await request("/api/auth/password/login", {
-    method: "POST",
-    body: { username: "x", password: "short" },
+  const unknownError = await request("/api/auth/error-page?error=Unexpected", {
+    cookie: "rts_auth_locale=en",
   });
-  const invalidPayloadBody = await readJson(invalidPayload, 400);
-  assert.equal(invalidPayloadBody.error, "invalid_payload");
+  assert.equal(unknownError.status, 307);
+  assert.match(
+    unknownError.headers.get("location") ?? "",
+    /\/en\/admin\/login\?error=oauth_failed$/,
+  );
 
-  const login = await request("/api/auth/password/login", {
-    method: "POST",
-    body: { username: adminUsername, password: adminPassword },
+  // Auth.js password flow: origin, payload and credential error codes.
+  const badOrigin = await authCallback(
+    "/api/auth/callback/credentials",
+    { username: adminUsername, password: adminPassword },
+    { headers: { origin: "https://evil.example" } },
+  );
+  assert.equal(badOrigin.url.searchParams.get("error"), "CredentialsSignin");
+  assert.equal(badOrigin.url.searchParams.get("code"), "invalid_origin");
+
+  const invalidPayload = await authCallback("/api/auth/callback/credentials", {
+    username: "x",
+    password: "short",
   });
-  const loginBody = await readJson(login, 200);
-  assert.equal(loginBody.ok, true);
+  assert.equal(invalidPayload.url.searchParams.get("error"), "CredentialsSignin");
+  assert.equal(invalidPayload.url.searchParams.get("code"), "invalid_payload");
 
-  const setCookie = login.headers.get("set-cookie") ?? "";
-  assert.match(setCookie, /(?:^|,\s*)rts_session=/i);
-  assert.match(setCookie, /;\s*HttpOnly/i);
-  assert.match(setCookie, /;\s*SameSite=Lax/i);
-  sessionCookie = setCookie.split(";")[0].trim();
-  assert.ok(sessionCookie.startsWith("rts_session="));
+  const login = await authCallback("/api/auth/callback/credentials", {
+    username: adminUsername,
+    password: adminPassword,
+  });
+  assert.equal(login.url.pathname, "/en/admin");
+  const issued = findSessionCookie(login.response);
+  assert.ok(issued, "Auth.js did not issue a session cookie");
+  assert.match(issued, /authjs\.session-token=/i);
+  assert.match(issued, /;\s*HttpOnly/i);
+  assert.match(issued, /;\s*SameSite=Lax/i);
+  sessionCookie = issued.split(";")[0].trim();
 
   const tampered = await request("/api/admin/content", {
     cookie: tamperSessionCookie(sessionCookie),
@@ -409,59 +475,55 @@ test("production auth, CMS, sync, OAuth and public smoke flow", { timeout: 120_0
   assert.equal(cachedSyncBody.ok, true);
   assert.equal(cachedSyncBody.cached, true);
 
-  // OAuth start uses only the minimal read:user scope.
-  const oauthStart = await request("/api/auth/github/start?locale=en");
-  assert.equal(oauthStart.status, 307);
-  const oauthLocation = oauthStart.headers.get("location") ?? "";
-  assert.match(oauthLocation, /^https:\/\/github\.com\/login\/oauth\/authorize\?/);
-  assert.match(oauthLocation, /(?:\?|&)scope=read%3Auser(?:&|$)/);
-  assert.doesNotMatch(oauthLocation, /(?:\?|&)scope=[^&]*repo/i);
-  const oauthUrl = new URL(oauthLocation);
-  assert.equal(oauthUrl.searchParams.get("scope"), "read:user");
-  assert.equal(oauthUrl.searchParams.get("client_id"), "smoke-client-id");
+  // Auth.js builds the GitHub authorization URL with the minimal scope.
+  const oauthStart = await authCallback("/api/auth/signin/github", {});
+  assert.match(oauthStart.url.toString(), /^https:\/\/github\.com\/login\/oauth\/authorize\?/);
+  assert.equal(oauthStart.url.searchParams.get("scope"), "read:user");
+  assert.equal(oauthStart.url.searchParams.get("client_id"), "smoke-client-id");
+  assert.doesNotMatch(oauthStart.url.toString(), /(?:\?|&)scope=[^&]*repo/i);
 
-  // Logout is form-POST only and clears the cookie used by subsequent requests.
-  const logoutGet = await request("/api/auth/logout", { cookie: sessionCookie });
-  assert.equal(logoutGet.status, 405);
+  // Auth.js sign-out clears the session cookie used by subsequent requests.
+  const logout = await authCallback(
+    "/api/auth/signout",
+    { callbackUrl: "/en/admin/login" },
+    { cookie: sessionCookie },
+  );
+  assert.equal(logout.url.pathname, "/en/admin/login");
+  const cleared = findSessionCookie(logout.response);
+  assert.ok(cleared, "Auth.js did not clear the session cookie");
+  sessionCookie = cleared.split(";")[0].trim();
 
-  const logoutPost = await request("/api/auth/logout", {
-    method: "POST",
-    cookie: sessionCookie,
-  });
-  assert.equal(logoutPost.status, 303);
-  assert.match(logoutPost.headers.get("location") ?? "", /\/en\/admin\/login(?:$|[?#])/);
-  assert.match(logoutPost.headers.get("set-cookie") ?? "", /rts_session=/i);
-
-  const afterLogout = await request("/api/admin/content", { cookie: "rts_session=" });
+  const afterLogout = await request("/api/admin/content", { cookie: sessionCookie });
   assert.equal(afterLogout.status, 401);
 
-  // Brute-force limiter: unique username, five failures, then 429 + Retry-After.
+  // Brute-force limiter: unique username, five failures, then a blocked code.
   const rateUsername = `smoke-rate-${randomBytes(5).toString("hex")}`;
   const wrongPassword = `WrongPass_${randomBytes(12).toString("base64url")}`;
   for (let attempt = 1; attempt <= 5; attempt += 1) {
-    const response = await request("/api/auth/password/login", {
-      method: "POST",
-      body: { username: rateUsername, password: wrongPassword },
+    const result = await authCallback("/api/auth/callback/credentials", {
+      username: rateUsername,
+      password: wrongPassword,
     });
-    const text = await response.text();
-    assert.equal(response.status, 401, `attempt ${attempt}: ${text}`);
+    assert.equal(
+      result.url.searchParams.get("code"),
+      "invalid_credentials",
+      `attempt ${attempt} did not return invalid_credentials`,
+    );
   }
 
-  const limited = await request("/api/auth/password/login", {
-    method: "POST",
-    body: { username: rateUsername, password: wrongPassword },
+  const limited = await authCallback("/api/auth/callback/credentials", {
+    username: rateUsername,
+    password: wrongPassword,
   });
-  const limitedBody = await readJson(limited, 429);
-  assert.equal(limitedBody.error, "too_many_attempts");
-  const retryAfter = limited.headers.get("retry-after");
-  assert.ok(retryAfter && Number(retryAfter) > 0, "expected a positive Retry-After header");
+  assert.equal(limited.url.searchParams.get("error"), "CredentialsSignin");
+  assert.equal(limited.url.searchParams.get("code"), "too_many_attempts");
 
-  const spoofed = await request("/api/auth/password/login", {
-    method: "POST",
-    headers: { "x-forwarded-for": "203.0.113.77" },
-    body: { username: rateUsername, password: wrongPassword },
-  });
-  assert.equal(spoofed.status, 429);
+  const spoofed = await authCallback(
+    "/api/auth/callback/credentials",
+    { username: rateUsername, password: wrongPassword },
+    { headers: { "x-forwarded-for": "203.0.113.77" } },
+  );
+  assert.equal(spoofed.url.searchParams.get("code"), "too_many_attempts");
 
   // Health endpoint confirms the isolated database is reachable.
   const health = await request("/api/health", { withOrigin: false });

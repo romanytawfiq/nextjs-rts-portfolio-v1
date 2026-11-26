@@ -15,6 +15,9 @@ type SkillGroup = {
   skills: { id?: number; name: string; visible: boolean; sortOrder: number }[];
 };
 
+// Auth.js reads the session at request time; this segment is allowed to block.
+export const instant = false;
+
 export default async function AdminSkillsPage({
   params,
 }: PageProps<"/[locale]/admin/skills">) {

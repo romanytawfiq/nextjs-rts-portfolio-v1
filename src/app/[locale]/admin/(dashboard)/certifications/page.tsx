@@ -17,6 +17,9 @@ type Certification = {
   sortOrder: number;
 };
 
+// Auth.js reads the session at request time; this segment is allowed to block.
+export const instant = false;
+
 export default async function AdminCertificationsPage({
   params,
 }: PageProps<"/[locale]/admin/certifications">) {
@@ -49,15 +52,12 @@ export default async function AdminCertificationsPage({
             {c.form.issuer}: {certification.issuer}
           </p>
           <p className="mt-3 text-xs text-muted">
-            {c.localization.field}: {certification.coverage.join(" · ")}
+            {c.common.field}: {certification.coverage.join(" · ")}
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <StatusBadge tone={certification.published ? "ok" : "muted"}>
               {certification.published ? c.common.published : c.common.unpublished}
             </StatusBadge>
-            {!certification.credentialUrl && (
-              <StatusBadge tone="warn">{c.common.pending}</StatusBadge>
-            )}
           </div>
         </AdminCard>
       ))}

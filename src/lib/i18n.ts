@@ -48,7 +48,6 @@ export async function getDictionary(locale: Locale): Promise<Dictionary> {
     "about": {
       "title": t("about.title"),
       "kicker": t("about.kicker"),
-      "translationPending": t("about.translationPending"),
       "languageLabel": t("about.languageLabel"),
     },
     "skills": {
@@ -71,9 +70,6 @@ export async function getDictionary(locale: Locale): Promise<Dictionary> {
       "kicker": t("projects.kicker"),
       "stackLabel": t("projects.stackLabel"),
       "featuresLabel": t("projects.featuresLabel"),
-      "repoPending": t("projects.repoPending"),
-      "demoPending": t("projects.demoPending"),
-      "translationPending": t("projects.translationPending"),
       "githubDescription": t("projects.githubDescription"),
       "githubSource": t("projects.githubSource"),
     },
@@ -81,22 +77,18 @@ export async function getDictionary(locale: Locale): Promise<Dictionary> {
       "title": t("github.title"),
       "kicker": t("github.kicker"),
       "profileCta": t("github.profileCta"),
-      "syncPending": t("github.syncPending"),
     },
     "certification": {
       "title": t("certification.title"),
       "kicker": t("certification.kicker"),
       "issuerLabel": t("certification.issuerLabel"),
       "coverageLabel": t("certification.coverageLabel"),
-      "credentialPending": t("certification.credentialPending"),
-      "translationPending": t("certification.translationPending"),
     },
     "contact": {
       "title": t("contact.title"),
       "kicker": t("contact.kicker"),
       "phoneLabel": t("contact.phoneLabel"),
       "whatsappLabel": t("contact.whatsappLabel"),
-      "emailNote": t("contact.emailNote"),
       "socialLabel": t("contact.socialLabel"),
     },
     "footer": {

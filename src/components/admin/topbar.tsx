@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -35,7 +36,12 @@ export function AdminTopbar({ locale, login }: { locale: Locale; login: string }
             {t("shell.viewSite")}
           </Link>
           <ThemeToggle label={t("shell.theme")} />
-          <form action={`/api/auth/logout?locale=${locale}`} method="post">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void signOut({ callbackUrl: `/${locale}/admin/login` });
+            }}
+          >
             <button
               type="submit"
               className="rounded-lg border border-line px-3 py-2 text-xs text-muted transition-colors hover:border-accent hover:text-accent"

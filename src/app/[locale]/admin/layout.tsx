@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { getAdminCopy } from "@/lib/admin-i18n";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 
-// Every admin page performs a server-side session check at request time.
+// Auth.js reads the session at request time. This segment and every admin page
+// opt out of instant-navigation validation; authorization still runs on the server.
 export const instant = false;
 
 export async function generateMetadata({

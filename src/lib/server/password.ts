@@ -3,9 +3,6 @@ import { createHash, scryptSync, timingSafeEqual } from "node:crypto";
 import { getDb } from "@/lib/server/db";
 
 const KEY_LENGTH = 64;
-export const USERNAME_PATTERN = /^[a-zA-Z0-9_.-]{3,64}$/;
-export const MIN_PASSWORD_LENGTH = 12;
-export const MAX_PASSWORD_LENGTH = 200;
 
 // A well-formed dummy hash keeps failed logins closer in cost to successful
 // ones when no local admin account has been configured yet.
@@ -81,14 +78,6 @@ export function isLoginLimited(key: string, now: number = Date.now()): boolean {
     return false;
   }
   return Number(row.count) >= MAX_LOGIN_ATTEMPTS;
-}
-
-export function loginRetryAfter(key: string, now: number = Date.now()): number {
-  const row = getDb()
-    .prepare("SELECT reset_at FROM auth_login_attempts WHERE attempt_key = ?")
-    .get(key) as { reset_at: number } | undefined;
-  const resetAt = Number(row?.reset_at ?? now + LOGIN_WINDOW_MS);
-  return Math.max(1, Math.ceil((resetAt - now) / 1000));
 }
 
 export function noteLoginFailure(key: string, now: number = Date.now()): void {

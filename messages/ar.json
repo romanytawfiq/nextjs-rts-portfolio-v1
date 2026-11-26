@@ -23,7 +23,6 @@
     "about": {
       "title": "نبذة",
       "kicker": "عنّي",
-      "translationPending": "الصياغة العربية بانتظار مراجعة المالك",
       "languageLabel": "اللغات"
     },
     "skills": {
@@ -46,32 +45,25 @@
       "kicker": "الأعمال",
       "stackLabel": "التقنيات",
       "featuresLabel": "المزايا",
-      "repoPending": "رابط المستودع بانتظار بيانات المالك",
-      "demoPending": "رابط النسخة التجريبية بانتظار بيانات المالك",
-      "translationPending": "الوصف العربي بانتظار مراجعة المالك",
       "githubDescription": "مستودع عام تمت مزامنته من GitHub.",
       "githubSource": "مزامن من GitHub"
     },
     "github": {
       "title": "GitHub",
       "kicker": "الكود",
-      "profileCta": "فتح حساب GitHub",
-      "syncPending": "ستظهر المستودعات العامة هنا بعد ربط مزامنة GitHub. لا يتم عرض أي قائمة مستودعات قبل توفر بيانات موثّقة."
+      "profileCta": "فتح حساب GitHub"
     },
     "certification": {
       "title": "الشهادات",
       "kicker": "التعلّم",
       "issuerLabel": "الجهة المانحة",
-      "coverageLabel": "المحتوى",
-      "credentialPending": "رابط الشهادة بانتظار بيانات المالك",
-      "translationPending": "التفاصيل العربية بانتظار مراجعة المالك"
+      "coverageLabel": "المحتوى"
     },
     "contact": {
       "title": "تواصل",
       "kicker": "مرحبًا",
       "phoneLabel": "الهاتف",
       "whatsappLabel": "واتساب",
-      "emailNote": "لا يتم نشر بريد إلكتروني؛ يُضاف فقط بموافقة المالك.",
       "socialLabel": "الصفحات"
     },
     "footer": {
@@ -86,7 +78,6 @@
       "admin": "لوحة تحكم المعرض",
       "viewSite": "عرض الموقع العام",
       "viewer": "مسجّل الدخول كـ",
-      "viewerPending": "هوية GitHub بانتظار التحقق",
       "signOut": "تسجيل الخروج",
       "language": "اللغة",
       "theme": "المظهر",
@@ -101,7 +92,6 @@
       "projects": "المشاريع",
       "certifications": "الشهادات",
       "github": "GitHub",
-      "localization": "التعريب",
       "settings": "الإعدادات",
       "preview": "معاينة"
     },
@@ -138,10 +128,6 @@
         "title": "GitHub",
         "subtitle": "مزامنة المستودعات العامة وإعدادات العرض."
       },
-      "localization": {
-        "title": "التعريب",
-        "subtitle": "تغطية المحتوى بالعربية والإنجليزية."
-      },
       "settings": {
         "title": "إعدادات الموقع",
         "subtitle": "اللغة والمظهر وSEO وظهور الأقسام."
@@ -170,11 +156,11 @@
       "published": "منشور",
       "unpublished": "غير منشور",
       "featured": "مُبرز",
-      "pending": "بانتظار بيانات المالك",
       "notProvided": "غير متوفر",
       "open": "فتح",
       "actions": "إجراءات",
       "status": "الحالة",
+      "field": "الحقل",
       "order": "الترتيب",
       "english": "الإنجليزية",
       "arabic": "العربية",
@@ -240,13 +226,6 @@
       "featured": "مُبرز",
       "hidden": "مخفي"
     },
-    "localization": {
-      "missing": "نصوص بانتظار المالك",
-      "needsReview": "بانتظار مراجعة المالك",
-      "ready": "جاهز",
-      "field": "الحقل",
-      "locale": "اللغة"
-    },
     "preview": {
       "englishCard": "الإنجليزية / LTR",
       "arabicCard": "العربية / RTL",
@@ -258,7 +237,7 @@
       "note": "الوصول مقتصر على حساب GitHub الموثّق للمالك أو الحساب المحلي للوحة التحكم.",
       "back": "العودة للموقع العام",
       "button": "المتابعة عبر GitHub",
-      "setup": "تسجيل الدخول عبر GitHub مغلق لحد ما يتم ضبط SESSION_SECRET وبيانات OAuth وGITHUB_ADMIN_ID على السيرفر.",
+      "setup": "تسجيل الدخول عبر GitHub مغلق لحد ما يتم ضبط AUTH_SECRET وبيانات OAuth وGITHUB_ADMIN_ID على السيرفر.",
       "signedIn": "أنت مسجّل الدخول بالفعل.",
       "passwordTitle": "دخول اللوحة المحلي",
       "username": "اسم المستخدم",
@@ -275,7 +254,6 @@
         "oauth_denied": "تم إلغاء الموافقة على GitHub.",
         "invalid_state": "انتهت صلاحية طلب الدخول. حاول مرة أخرى.",
         "forbidden": "حساب GitHub هذا غير مسموح له بالدخول للوحة.",
-        "token_exchange_failed": "لم يُرجع GitHub رمز وصول.",
         "oauth_failed": "فشل تسجيل الدخول. حاول مرة أخرى."
       }
     }

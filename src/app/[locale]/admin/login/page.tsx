@@ -4,8 +4,12 @@ import { PasswordLogin } from "@/components/admin/password-login";
 import { GitHubIcon } from "@/components/icons";
 import { getAdminCopy } from "@/lib/admin-i18n";
 import { defaultLocale, isLocale } from "@/lib/i18n";
-import { getSession, isOAuthConfigured } from "@/lib/server/auth";
-import { isPasswordLoginConfigured } from "@/lib/server/password";
+import { getSession, isOAuthConfigured, isPasswordAuthConfigured } from "@/lib/server/auth";
+
+import { signInWithGitHub } from "./actions";
+
+// Auth.js reads the session at request time; this segment is allowed to block.
+export const instant = false;
 
 export default async function AdminLoginPage({
   params,
@@ -17,7 +21,7 @@ export default async function AdminLoginPage({
   const c = await getAdminCopy(activeLocale);
   const page = c.pages.login;
   const githubConfigured = isOAuthConfigured();
-  const passwordConfigured = isPasswordLoginConfigured();
+  const passwordConfigured = isPasswordAuthConfigured();
   const session = await getSession();
   const errorCode = typeof error === "string" ? error : undefined;
   const errors = c.login.errors as Record<string, string>;
@@ -68,13 +72,16 @@ export default async function AdminLoginPage({
             </div>
 
             {githubConfigured ? (
-              <a
-                href={`/api/auth/github/start?locale=${activeLocale}`}
-                className="inline-flex w-full items-center justify-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-sm font-medium text-foreground transition-opacity hover:opacity-90"
-              >
-                <GitHubIcon className="size-5" />
-                {c.login.button}
-              </a>
+              <form action={signInWithGitHub}>
+                <input type="hidden" name="locale" value={activeLocale} />
+                <button
+                  type="submit"
+                  className="inline-flex w-full items-center justify-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 text-sm font-medium text-foreground transition-opacity hover:opacity-90"
+                >
+                  <GitHubIcon className="size-5" />
+                  {c.login.button}
+                </button>
+              </form>
             ) : (
               <>
                 <button

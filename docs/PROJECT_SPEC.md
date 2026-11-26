@@ -145,7 +145,7 @@ The dashboard is private and must allow the owner to manage portfolio content wi
 6. **Projects management:** create, edit, preview, publish/unpublish, feature/unfeature, reorder, and remove project entries; manage descriptions in both languages, technologies, screenshots, repository URL, live demo URL, and other project links.
 7. **Certifications management:** create, edit, reorder, publish/unpublish, and manage issuer, descriptions, dates, credential URLs, and certificate images/files when supported by the approved storage design.
 8. **GitHub integration:** connect/check the owner's GitHub identity, trigger sync, display last successful sync and errors, and manage repository visibility/featured status/order without losing source repository data.
-9. **Localization management:** edit Arabic and English text and identify missing translations.
+9. **Localization management:** bilingual UI routing remains; a dedicated admin localization editing/coverage page and UI pending notices are out of scope by owner decision (2026-11-26). Missing copy is tracked in planning docs, not shown as alerts. Do not machine-translate or invent Arabic CMS copy.
 10. **Site settings:** default language, theme behavior, SEO metadata, and public section visibility.
 11. **Preview:** preview public content in Arabic/English and light/dark themes before publishing.
 
@@ -159,7 +159,7 @@ A save operation must provide clear success/error feedback. Destructive operatio
 - The admin dashboard must also be bilingual.
 - Arabic pages must use right-to-left direction (`rtl`) and English pages left-to-right direction (`ltr`). Direction must be applied at the document/layout level and respected by components, spacing, navigation, forms, tables, icons, and motion—not simulated only with text alignment.
 - All owner-editable content that appears publicly must have Arabic and English values or an explicit, approved fallback policy.
-- Do not machine-translate or invent Arabic profile copy without owner review. Mark missing translations clearly in the dashboard.
+- Do not machine-translate or invent Arabic profile copy without owner review. Do not surface owner-review notices in the UI; record missing copy in planning docs only.
 - Locale-aware metadata, date/number formatting, document language, and accessibility labels must be considered.
 - Use explicit locale routes (recommended shape: `/en` and `/ar`) unless an ADR approves another routing design.
 - **Default locale is pending owner approval.** English-first is a reasonable recommendation for international recruiter visibility, while Arabic must remain one click away.
@@ -352,7 +352,7 @@ Track these items explicitly; do not silently resolve them:
 9. **Email:** Resolved on 2026-11-26 — the owner approved publishing `romanytawfiqshehata@gmail.com` on the public site.
 10. **Profile image and CV download:** Resolved on 2026-11-26 — the owner supplied `public/rts.jpeg` and `public/rts_cv.pdf` and asked to publish them; both are linked from the public hero.
 11. **Asset storage:** Decide whether project screenshots and certificate images will use a managed object-storage provider or approved external URLs.
-12. **Authentication library and database access layer:** Evaluate maintained options compatible with Next.js App Router, GitHub OAuth, SQLite/Turso, and the chosen deployment host. Record the final selection in ADRs.
+12. **Authentication library and database access layer:** Auth.js / NextAuth v5 beta is implemented for sign-in and JWT sessions and was approved by the owner on 2026-11-26 (ADR-004). Database access remains built-in `node:sqlite` with no ORM (ADR-001).
 13. **Education and work experience:** The CV supplied for planning does not list these sections. Add them only if the owner supplies verified details.
 
 ## 16. Documentation and research references

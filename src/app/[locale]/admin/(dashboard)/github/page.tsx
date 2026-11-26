@@ -15,6 +15,9 @@ import { getAdminContent } from "@/lib/server/content";
 
 type RepoPresentation = { githubId: number; featured: boolean; hidden: boolean; sortOrder: number };
 
+// Auth.js reads the session at request time; this segment is allowed to block.
+export const instant = false;
+
 export default async function AdminGitHubPage({
   params,
 }: PageProps<"/[locale]/admin/github">) {

@@ -11,9 +11,11 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
   # CI-only placeholders. Auth fails closed in real deployments unless the
   # host supplies real values; the smoke test generates its own temporary env.
-  SESSION_SECRET: ci-only-session-secret-not-for-production
-  GITHUB_CLIENT_ID: ci-only-client-id
-  GITHUB_CLIENT_SECRET: ci-only-client-secret
+  AUTH_SECRET: ci-only-auth-secret-not-for-production
+  AUTH_GITHUB_ID: ci-only-client-id
+  AUTH_GITHUB_SECRET: ci-only-client-secret
+  AUTH_TRUST_HOST: "1"
+  AUTH_URL: http://127.0.0.1:3000
   GITHUB_ADMIN_ID: "1"
   GITHUB_REPO_OWNER: ci-only-owner
   SITE_URL: http://127.0.0.1:3000

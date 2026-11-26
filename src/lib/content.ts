@@ -1,6 +1,7 @@
 // Static, CV-derived content only. Values here must not be invented or upgraded.
 // Missing owner input (project URLs, credential URL, email, Arabic prose) stays
-// absent and is rendered as an explicit pending state in the UI.
+// absent and is omitted from the published UI; do not invent values or show
+// owner-review notices.
 
 export const profile = {
   name: "Romany Tawfiq Shehata",

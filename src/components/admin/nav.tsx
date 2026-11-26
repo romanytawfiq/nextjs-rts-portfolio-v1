@@ -15,7 +15,6 @@ const items = [
   { key: "projects", segment: "/projects" },
   { key: "certifications", segment: "/certifications" },
   { key: "github", segment: "/github" },
-  { key: "localization", segment: "/localization" },
   { key: "settings", segment: "/settings" },
   { key: "preview", segment: "/preview" },
 ] as const;

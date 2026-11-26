@@ -11,6 +11,9 @@ import { defaultLocale, isLocale } from "@/lib/i18n";
 import { requireAdminPage } from "@/lib/server/auth";
 import { getAdminContent } from "@/lib/server/content";
 
+// Auth.js reads the session at request time; this segment is allowed to block.
+export const instant = false;
+
 export default async function AdminContactPage({
   params,
 }: PageProps<"/[locale]/admin/contact">) {
@@ -43,7 +46,7 @@ export default async function AdminContactPage({
           <Field label={c.form.whatsapp}>
             <input className={inputClass} defaultValue={contact.whatsapp} readOnly />
           </Field>
-          <Field label={c.form.email} hint={c.common.pending}>
+          <Field label={c.form.email}>
             <input className={inputClass} defaultValue={contact.email} readOnly />
           </Field>
         </div>

@@ -23,22 +23,6 @@ export function SectionHeading({
   );
 }
 
-export function PendingBadge({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-dashed border-accent/50 bg-accent-soft px-3 py-1 text-xs font-medium text-accent">
-      {children}
-    </span>
-  );
-}
-
-export function PendingLink({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-md border border-dashed border-line px-3 py-2 text-xs text-muted">
-      {children}
-    </span>
-  );
-}
-
 export function ExternalLink({
   href,
   children,

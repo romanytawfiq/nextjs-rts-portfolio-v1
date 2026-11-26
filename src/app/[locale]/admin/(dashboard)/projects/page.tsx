@@ -21,6 +21,9 @@ type Project = {
   sortOrder: number;
 };
 
+// Auth.js reads the session at request time; this segment is allowed to block.
+export const instant = false;
+
 export default async function AdminProjectsPage({
   params,
 }: PageProps<"/[locale]/admin/projects">) {
@@ -59,7 +62,6 @@ export default async function AdminProjectsPage({
                 {project.published ? c.common.published : c.common.unpublished}
               </StatusBadge>
               {project.featured && <StatusBadge tone="ok">{c.common.featured}</StatusBadge>}
-              {!project.repoUrl && <StatusBadge tone="warn">{c.common.pending}</StatusBadge>}
             </div>
           </AdminCard>
         ))}

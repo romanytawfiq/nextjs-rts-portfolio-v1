@@ -7,7 +7,7 @@ Status: **prepared, not executed**. `docs/ADR-001-deployment.md` records the own
 - The purchased Hostinger plan includes **Node.js Web Apps**. If it does not, upgrade to a plan that does or use a Hostinger VPS; do not change the database architecture silently.
 - A domain is purchased and assigned to the site. `SITE_URL` must be that exact `https://` origin.
 - SSH access is available for creating the persistent data directory, setting the initial admin credential, and running backups.
-- The GitHub OAuth callback `https://<domain>/api/auth/github/callback` is registered in GitHub.
+- The Auth.js GitHub OAuth callback `https://<domain>/api/auth/callback/github` is registered in GitHub.
 
 ## 2. hPanel build settings
 
@@ -47,9 +47,10 @@ Set these under **Environment variables**. They persist across deployments and a
 
 | Variable | Notes |
 | --- | --- |
-| `SESSION_SECRET` | Fresh production-only value, at least 32 characters. |
-| `GITHUB_CLIENT_ID` | GitHub OAuth app client ID. |
-| `GITHUB_CLIENT_SECRET` | Regenerated secret; do not reuse the one previously exposed. |
+| `AUTH_SECRET` | Fresh production-only Auth.js value, at least 32 characters. Legacy `SESSION_SECRET` is accepted but do not use it for the new deployment. |
+| `AUTH_TRUST_HOST` | Set to `1` so Auth.js trusts the forwarded public host. |
+| `AUTH_GITHUB_ID` | GitHub OAuth app client ID. Legacy `GITHUB_CLIENT_ID` is accepted. |
+| `AUTH_GITHUB_SECRET` | Regenerated secret; do not reuse the one previously exposed. Legacy `GITHUB_CLIENT_SECRET` is accepted. |
 | `GITHUB_ADMIN_ID` | Stable numeric admin ID `232469937`. |
 | `GITHUB_REPO_OWNER` | `romanytawfiq`. |
 | `GITHUB_TOKEN` | Optional read-only token with **no** `repo` scope; leave empty to use anonymous GitHub rate limits. |
@@ -66,7 +67,7 @@ cd /path/to/trusted/checkout
 SQLITE_PATH=/home/<hosting-user>/portfolio-data/portfolio.sqlite npm run admin:password
 ```
 
-Do not pass the password as a command-line argument, do not paste it into chat, and do not reuse a previously exposed password. Changing it invalidates old password sessions.
+Use the exact same `SQLITE_PATH` as the running app: the script reads the shell environment and does not load `.env.local`. There is **one** local admin credential; rerunning the script replaces both username and password. The username printed by this command is the username to enter on the login page; an unmatched username or a different `SQLITE_PATH` is the most likely cause of an "incorrect password" message after creating a new admin credential. Do not pass the password as a command-line argument, do not paste it into chat, and do not reuse a previously exposed password. Changing it invalidates old password sessions.
 
 ## 6. Backups and restore drill
 

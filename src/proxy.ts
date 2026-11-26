@@ -7,7 +7,9 @@ const handleI18nRouting = createMiddleware(routing);
 
 // next-intl owns locale negotiation and the root `/` → `/ar` redirect.
 // The admin check below is only a signed-out UX pre-filter; every admin page
-// and mutation still verifies the session again on the server.
+// and mutation still verifies the Auth.js session again on the server.
+const SESSION_COOKIES = ["authjs.session-token", "__Secure-authjs.session-token"];
+
 export function proxy(request: NextRequest) {
   const response = handleI18nRouting(request);
 
@@ -15,8 +17,9 @@ export function proxy(request: NextRequest) {
     const {pathname} = request.nextUrl;
     const isAdmin = /^\/(en|ar)\/admin(?:\/|$)/.test(pathname);
     const isLogin = pathname.endsWith("/admin/login");
+    const hasSession = SESSION_COOKIES.some((name) => request.cookies.has(name));
 
-    if (isAdmin && !isLogin && !request.cookies.has("rts_session")) {
+    if (isAdmin && !isLogin && !hasSession) {
       const locale = pathname.startsWith("/ar/") ? "ar" : "en";
       return NextResponse.redirect(new URL(`/${locale}/admin/login`, request.url));
     }

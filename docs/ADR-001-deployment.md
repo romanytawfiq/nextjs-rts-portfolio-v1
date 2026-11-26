@@ -11,10 +11,10 @@ This is a decision-record template. The recommendation below is a proposal, not 
 
 - Development uses a local SQLite file at `.data/portfolio.sqlite` (with WAL/SHM files) through `node:sqlite` `DatabaseSync`. No ORM is selected or embedded.
 - Local runtime verified: Node `v24.20.0`. The code imports built-in `node:sqlite`.
-- `.env.example` lists `SESSION_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_ADMIN_ID`, `GITHUB_REPO_OWNER`, `SITE_URL`, `TRUST_PROXY`, and `SQLITE_PATH`. `scripts/set-admin-password.mjs` also accepts one-time `ADMIN_USERNAME`/`ADMIN_PASSWORD` inputs and stores only a `scrypt` hash. `src/lib/server/github.ts` optionally uses a server-only `GITHUB_TOKEN`.
+- `.env.example` lists `AUTH_SECRET`, `AUTH_TRUST_HOST`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `GITHUB_ADMIN_ID`, `GITHUB_REPO_OWNER`, `SITE_URL`, `TRUST_PROXY`, and `SQLITE_PATH`; legacy `SESSION_SECRET` and `GITHUB_CLIENT_*` names are accepted as aliases. `scripts/set-admin-password.mjs` also accepts one-time `ADMIN_USERNAME`/`ADMIN_PASSWORD` inputs and stores only a `scrypt` hash. `src/lib/server/github.ts` optionally uses a server-only `GITHUB_TOKEN`.
 - `src/lib/server/db.ts` creates the schema idempotently, has no migration-version table, and has no migration CLI.
 - `scripts/backup-db.mjs` makes a consistent snapshot with SQLite `VACUUM INTO`, defaulting to a timestamped file under `backups/`, and exits nonzero on failure.
-- Login failures are stored in `auth_login_attempts`: 5 attempts per 15 minutes, keyed by trusted client IP plus username. `TRUST_PROXY=1` or a Vercel forwarded header is required before `X-Forwarded-For` is trusted; otherwise the bucket is `local`.
+- Login failures are stored in `auth_login_attempts`: 5 attempts per 15 minutes, keyed by trusted client IP plus username. `TRUST_PROXY=1` or a Vercel forwarded header is required before `X-Forwarded-For` is trusted; otherwise the bucket is `local`. Auth.js maps the blocked state to the existing `too_many_attempts` login message rather than a JSON `429`.
 - The CV lists a Vercel-hosted portfolio URL, but `docs/PROJECT_SPEC.md` treats Vercel as a working assumption only. The owner has now selected **Hostinger regular/shared hosting** instead.
 - Hostinger's current docs (checked 2026-11-25) state that managed Node.js Web Apps support Node 18/20/22/24, run Next.js in standalone server mode, inject environment variables that persist across deployments, and capture stdout/stderr in Runtime Logs.
 - Hostinger deploys Node apps into `hbuilds/current/nodejs`; `hbuilds/` and `public_html` are overwritten on every deployment. A SQLite file inside the build directory is therefore **not durable**.
@@ -63,12 +63,12 @@ The owner selected **Hostinger regular/shared hosting** on 2026-11-25. Vercel/Tu
 
 ### Environment variables
 
-- Server-only: `SESSION_SECRET` (at least 32 characters), `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_ADMIN_ID`, `GITHUB_REPO_OWNER`, `SITE_URL`, `TRUST_PROXY`, `SQLITE_PATH`, and optional `GITHUB_TOKEN`.
+- Server-only: `AUTH_SECRET` (at least 32 characters), `AUTH_TRUST_HOST=1`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `GITHUB_ADMIN_ID`, `GITHUB_REPO_OWNER`, `SITE_URL`, `TRUST_PROXY`, `SQLITE_PATH`, and optional `GITHUB_TOKEN`. Legacy `SESSION_SECRET`/`GITHUB_CLIENT_*` names are accepted locally.
 - One-time setup only: `ADMIN_USERNAME` and `ADMIN_PASSWORD` for `npm run admin:password`; only the generated hash is stored.
 - Set these in **hPanel → Environment variables**, not in a committed `.env` file. Hostinger injects them into both build and runtime and preserves them across deployments.
 - `SQLITE_PATH` must be the persistent path outside `hbuilds/`; do not rely on the repo-local `.data/portfolio.sqlite` after a deployment.
-- Secrets must never be placed in `NEXT_PUBLIC_*` or committed. Rotate the exposed GitHub client secret, set a fresh local admin password, and use a fresh `SESSION_SECRET` before release.
-- `SITE_URL` must be the approved production origin once the domain is purchased; the GitHub OAuth callback is `<SITE_URL>/api/auth/github/callback`.
+- Secrets must never be placed in `NEXT_PUBLIC_*` or committed. Rotate the exposed GitHub client secret, set a fresh local admin password, and use a fresh `AUTH_SECRET` before release.
+- `SITE_URL` must be the approved production origin once the domain is purchased; the Auth.js GitHub OAuth callback is `<SITE_URL>/api/auth/callback/github`.
 
 ### Monitoring
 
@@ -85,7 +85,7 @@ The owner selected **Hostinger regular/shared hosting** on 2026-11-25. Vercel/Tu
 - Current built-in limiter covers **local password login only**: 5 failed attempts per 15 minutes per trusted-IP-and-username key, stored in `auth_login_attempts`.
 - The attempts table lives in the same SQLite database as the CMS, so it persists across Hostinger cold starts and deployments as long as `SQLITE_PATH` is durable.
 - `TRUST_PROXY` must be enabled only behind a trusted reverse proxy; direct access uses a single `local` bucket. Hostinger's proxy configuration must be confirmed before enabling it.
-- GitHub OAuth start/callback uses a one-time `state` cookie but has no dedicated request limiter. Edge/proxy rate limiting for auth endpoints and any future public mutation endpoints must be defined for the chosen host.
+- Auth.js GitHub sign-in handles OAuth `state`/PKCE but has no dedicated request limiter. Edge/proxy rate limiting for auth endpoints and any future public mutation endpoints must be defined for the chosen host.
 
 ## Consequences
 
