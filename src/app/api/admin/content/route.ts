@@ -1,7 +1,7 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import { authorizeApi } from "@/lib/server/auth";
-import { getAdminContent, updateSection } from "@/lib/server/content";
+import { CMS_CACHE_TAG, getAdminContent, updateSection } from "@/lib/server/content";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { BodyTooLargeError, readJsonBody } from "@/lib/server/request-body";
 import { contentMutationSchema, isSectionKey, sectionSchemas } from "@/lib/schemas/cms";
@@ -50,6 +50,7 @@ export async function PATCH(request: Request) {
     return Response.json({ error: "validation_failed" }, { status: 400 });
   }
 
+  revalidateTag(CMS_CACHE_TAG, { expire: 0 });
   revalidatePath("/en");
   revalidatePath("/ar");
   revalidatePath("/en/admin");

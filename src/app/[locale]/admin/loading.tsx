@@ -1,11 +1,7 @@
-// Auth.js reads the session at request time. This boundary lets the admin
-// shell stream immediately while the session check completes.
+import { AdminShellSkeleton } from "@/components/admin/skeleton";
+
+// Initial entry into the admin segment can still block on the Auth.js session.
+// This boundary renders the full shell skeleton while that check completes.
 export default function AdminLoading() {
-  return (
-    <div className="flex min-h-screen items-center justify-center" aria-busy="true">
-      <span className="text-sm text-muted" aria-live="polite">
-        …
-      </span>
-    </div>
-  );
+  return <AdminShellSkeleton />;
 }

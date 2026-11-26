@@ -1,5 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 
+import { cacheLife, cacheTag } from "next/cache";
+
 import messagesAr from "../../../messages/ar.json";
 import messagesEn from "../../../messages/en.json";
 import type { AdminIdentity } from "@/lib/server/auth-types";
@@ -460,6 +462,18 @@ export function getAdminContent(): AdminContent {
       ),
     },
   };
+}
+
+export const CMS_CACHE_TAG = "cms-content";
+
+// Admin pages share one CMS read. A short server cache removes repeated SQLite
+// work on sibling navigations; stale: 0 keeps it out of prerendered shells and
+// forces a fresh read on the next request after a mutation invalidates the tag.
+export async function getCachedAdminContent(): Promise<AdminContent> {
+  "use cache";
+  cacheTag(CMS_CACHE_TAG);
+  cacheLife({ stale: 0, revalidate: 30, expire: 120 });
+  return getAdminContent();
 }
 
 export function audit(db: DatabaseSync, githubId: number | null, action: string, detail: string) {

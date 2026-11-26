@@ -3,7 +3,7 @@ import { AdminCard, AdminPageHeader, StatusBadge } from "@/components/admin/ui";
 import { getAdminCopy } from "@/lib/admin-i18n";
 import { getDictionary, defaultLocale, isLocale } from "@/lib/i18n";
 import { requireAdminPage } from "@/lib/server/auth";
-import { getAdminContent } from "@/lib/server/content";
+import { getCachedAdminContent } from "@/lib/server/content";
 
 type SkillGroup = {
   id?: number;
@@ -27,7 +27,7 @@ export default async function AdminSkillsPage({
   const c = await getAdminCopy(activeLocale);
   const page = c.pages.skills;
   const publicCopy = await getDictionary(activeLocale);
-  const content = getAdminContent();
+  const content = await getCachedAdminContent();
   const groups = content.sections.skills as SkillGroup[];
   const quickLabels = {
     add: c.common.add,

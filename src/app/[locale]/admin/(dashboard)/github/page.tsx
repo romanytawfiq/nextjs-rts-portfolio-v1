@@ -11,7 +11,7 @@ import { GitHubIcon } from "@/components/icons";
 import { getAdminCopy } from "@/lib/admin-i18n";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { requireAdminPage } from "@/lib/server/auth";
-import { getAdminContent } from "@/lib/server/content";
+import { getCachedAdminContent } from "@/lib/server/content";
 
 type RepoPresentation = { githubId: number; featured: boolean; hidden: boolean; sortOrder: number };
 
@@ -26,7 +26,7 @@ export default async function AdminGitHubPage({
   await requireAdminPage(activeLocale);
   const c = await getAdminCopy(activeLocale);
   const page = c.pages.github;
-  const content = getAdminContent();
+  const content = await getCachedAdminContent();
   const settings = content.sections.githubSettings as {
     includeForks: boolean;
     includeArchived: boolean;

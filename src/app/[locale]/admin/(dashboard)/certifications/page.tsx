@@ -3,7 +3,7 @@ import { AdminCard, AdminPageHeader, StatusBadge } from "@/components/admin/ui";
 import { getAdminCopy } from "@/lib/admin-i18n";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { requireAdminPage } from "@/lib/server/auth";
-import { getAdminContent } from "@/lib/server/content";
+import { getCachedAdminContent } from "@/lib/server/content";
 
 type Certification = {
   id?: number;
@@ -28,7 +28,7 @@ export default async function AdminCertificationsPage({
   await requireAdminPage(activeLocale);
   const c = await getAdminCopy(activeLocale);
   const page = c.pages.certifications;
-  const content = getAdminContent();
+  const content = await getCachedAdminContent();
   const certifications = content.sections.certifications as Certification[];
   const quickLabels = {
     add: c.common.add,

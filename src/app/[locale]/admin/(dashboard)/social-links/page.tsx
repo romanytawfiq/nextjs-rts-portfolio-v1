@@ -8,7 +8,7 @@ import {
 import { getAdminCopy } from "@/lib/admin-i18n";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { requireAdminPage } from "@/lib/server/auth";
-import { getAdminContent } from "@/lib/server/content";
+import { getCachedAdminContent } from "@/lib/server/content";
 
 type SocialLink = {
   id?: number;
@@ -30,7 +30,7 @@ export default async function AdminSocialLinksPage({
   await requireAdminPage(activeLocale);
   const c = await getAdminCopy(activeLocale);
   const page = c.pages.social;
-  const content = getAdminContent();
+  const content = await getCachedAdminContent();
   const links = content.sections.socialLinks as SocialLink[];
   const quickLabels = {
     add: c.common.add,

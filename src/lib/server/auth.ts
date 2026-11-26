@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
+import { cache } from "react";
 
 import { auth } from "@/auth";
 import {
@@ -67,10 +68,13 @@ async function readSessionUncached(): Promise<Session | null> {
 // crypto.getRandomValues(), which Cache Components cannot prerender. Defer the
 // whole page session read to request time; the admin loading boundary provides
 // the Suspense fallback.
-async function readSession(): Promise<Session | null> {
+// React cache deduplicates the session check between the dashboard layout and
+// a page in the same render. It is request-scoped, so revocation still applies
+// to the next navigation.
+const readSession = cache(async (): Promise<Session | null> => {
   await connection();
   return readSessionUncached();
-}
+});
 
 export async function getSession(): Promise<Session | null> {
   return readSession();

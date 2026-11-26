@@ -9,7 +9,7 @@ import {
 import { getAdminCopy } from "@/lib/admin-i18n";
 import { defaultLocale, isLocale } from "@/lib/i18n";
 import { requireAdminPage } from "@/lib/server/auth";
-import { getAdminContent } from "@/lib/server/content";
+import { getCachedAdminContent } from "@/lib/server/content";
 
 // Auth.js reads the session at request time; this segment is allowed to block.
 export const instant = false;
@@ -22,7 +22,7 @@ export default async function AdminContactPage({
   await requireAdminPage(activeLocale);
   const c = await getAdminCopy(activeLocale);
   const page = c.pages.contact;
-  const content = getAdminContent();
+  const content = await getCachedAdminContent();
   const contact = content.sections.contact as {
     phone: string;
     whatsapp: string;

@@ -1,7 +1,8 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 
 import { authorizeApi } from "@/lib/server/auth";
+import { CMS_CACHE_TAG } from "@/lib/server/content";
 import { syncPublicRepos } from "@/lib/server/github";
 import { checkRateLimit } from "@/lib/server/rate-limit";
 import { BodyTooLargeError, readJsonBody } from "@/lib/server/request-body";
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
   }
 
   const result = await syncPublicRepos(auth.session.sub, { force: parsed.data.force ?? false });
+  revalidateTag(CMS_CACHE_TAG, { expire: 0 });
   revalidatePath("/en");
   revalidatePath("/ar");
   revalidatePath("/en/admin/github");

@@ -109,7 +109,7 @@ tests/smoke.test.mjs            End-to-end smoke test
 
 Dashboard sections: overview, profile, skills, projects, certifications, contact, social links, GitHub sync, preview and settings. Array sections support add/remove/reorder/publish actions plus a validated JSON editor. All page and mutation access is checked server-side (`requireAdminPage` / `authorizeApi`); client validation is not a security boundary.
 
-With `cacheComponents: true`, admin pages export `instant = false`, the session DAL calls `connection()` before reading Auth.js, and `src/app/[locale]/admin/loading.tsx` provides the Suspense fallback. Keep these together: removing them brings back the prerender errors in the dev console.
+With `cacheComponents: true`, admin pages export `instant = false`, the session DAL calls `connection()` (deduplicated per request with React `cache()`) before reading Auth.js, and `src/app/[locale]/admin/loading.tsx` covers first entry. Sibling navigations use `src/app/[locale]/admin/(dashboard)/loading.tsx`, which sits below the shared dashboard layout and streams a skeleton immediately. CMS reads are shared through `getCachedAdminContent()` and invalidated by both mutation routes; keep the auth boundary, loading files and cache tag together to avoid prerender errors and stale admin data.
 
 GitHub sync is server-side, cached, paginated and rate-limit aware. Curated projects are separate from synced repository metadata.
 
