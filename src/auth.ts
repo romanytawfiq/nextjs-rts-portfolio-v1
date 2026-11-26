@@ -7,8 +7,15 @@ import {
   allowedAdminId,
   authSecret,
   githubCredentials,
+  requireAuthSecret,
 } from "@/lib/server/auth-env";
-import { recordLogin, recordPasswordLogin } from "@/lib/server/audit";
+import { isGithubLoginAllowed } from "@/lib/server/allowlist";
+import {
+  recordDeniedGithubLogin,
+  recordLogin,
+  recordLoginFailure,
+  recordPasswordLogin,
+} from "@/lib/server/audit";
 import {
   authenticatePassword,
   clearLoginFailures,
@@ -16,7 +23,7 @@ import {
   isPasswordLoginConfigured,
   noteLoginFailure,
 } from "@/lib/server/password";
-import { clientIp, isAllowedOrigin } from "@/lib/server/request-origin";
+import { clientIp, isAllowedOrigin, loginClientKey } from "@/lib/server/request-origin";
 
 // Auth.js reads AUTH_URL. SITE_URL is the existing canonical-origin variable,
 // so use it as a compatibility alias instead of asking for two values.
@@ -34,7 +41,8 @@ class PasswordSignInError extends CredentialsSignin {
 }
 
 function attemptKey(request: Request, username: string): string {
-  return `${clientIp(request)}:${username.trim().toLowerCase()}`;
+  const normalized = username.trim().toLowerCase();
+  return `${loginClientKey(request)}:${normalized}`;
 }
 
 function githubLogin(
@@ -47,7 +55,7 @@ function githubLogin(
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: authSecret() ?? undefined,
+  secret: requireAuthSecret(),
   trustHost: process.env.AUTH_TRUST_HOST === "1" || process.env.NODE_ENV !== "production",
   session: { strategy: "jwt", maxAge: SESSION_MAX_AGE },
   pages: {
@@ -83,12 +91,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const username = parsed.data.username.trim();
         const key = attemptKey(request, username);
         if (isLoginLimited(key)) {
+          recordLoginFailure(
+            username,
+            clientIp(request),
+            request.headers.get("user-agent") ?? "",
+          );
           throw new PasswordSignInError("too_many_attempts");
         }
 
         const authenticated = authenticatePassword(username, parsed.data.password);
         if (!authenticated) {
           noteLoginFailure(key);
+          recordLoginFailure(
+            username,
+            clientIp(request),
+            request.headers.get("user-agent") ?? "",
+          );
           throw new PasswordSignInError("invalid_credentials");
         }
 
@@ -115,11 +133,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const allowed = allowedAdminId();
         const rawId = account.providerAccountId ?? (profile?.id != null ? String(profile.id) : "");
         if (allowed === null || !/^\d+$/.test(rawId) || Number(rawId) !== allowed) {
+          recordDeniedGithubLogin(rawId || "unknown");
           return false;
         }
-        const login = githubLogin(profile, user);
-        if (!login) return false;
-        recordLogin({ sub: allowed, login });
+        // A disabled allowlist row is an explicit revocation. The audit helper
+        // must not be able to re-enable it on the next sign-in.
+        if (!isGithubLoginAllowed(allowed)) {
+          recordDeniedGithubLogin(rawId);
+          return false;
+        }
+        if (!githubLogin(profile, user)) return false;
+        // Audit/allowlist writes happen in the jwt callback, after this
+        // authorization decision succeeds.
         return true;
       }
 
@@ -129,11 +154,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider === "github") {
         const rawId = account.providerAccountId ?? (profile?.id != null ? String(profile.id) : "");
         const githubId = /^\d+$/.test(rawId) ? Number(rawId) : 0;
+        const login =
+          githubLogin(profile, user) ??
+          (typeof token.login === "string" ? token.login : "");
         token.sub = String(githubId);
         token.githubId = githubId;
-        token.login = githubLogin(profile, user) ?? token.login ?? "";
+        token.login = login;
         token.method = "github";
         token.ver = "";
+        if (login && isGithubLoginAllowed(githubId)) {
+          recordLogin({ sub: githubId, login });
+        }
         return token;
       }
 

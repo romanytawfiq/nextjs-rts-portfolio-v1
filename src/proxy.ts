@@ -2,6 +2,7 @@ import createMiddleware from "next-intl/middleware";
 import {NextResponse, type NextRequest} from "next/server";
 
 import {routing} from "./i18n/routing";
+import {isValidLoginClientId, LOGIN_CLIENT_COOKIE} from "./lib/login-client";
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -22,6 +23,18 @@ export function proxy(request: NextRequest) {
     if (isAdmin && !isLogin && !hasSession) {
       const locale = pathname.startsWith("/ar/") ? "ar" : "en";
       return NextResponse.redirect(new URL(`/${locale}/admin/login`, request.url));
+    }
+
+    // Give browser clients a stable, server-issued login bucket when no trusted
+    // proxy IP is available. The value is random and never derived from input.
+    if (isLogin && !isValidLoginClientId(request.cookies.get(LOGIN_CLIENT_COOKIE)?.value)) {
+      response.cookies.set(LOGIN_CLIENT_COOKIE, crypto.randomUUID().replace(/-/g, ""), {
+        httpOnly: true,
+        secure: request.nextUrl.protocol === "https:",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 15,
+      });
     }
   }
 

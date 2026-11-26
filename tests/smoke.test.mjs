@@ -357,6 +357,12 @@ after(async () => {
 });
 
 test("production auth, CMS, sync, OAuth and public smoke flow", { timeout: 120_000 }, async () => {
+  const initialPage = await request("/en", { withOrigin: false });
+  assert.equal(initialPage.headers.get("x-content-type-options"), "nosniff");
+  assert.equal(initialPage.headers.get("x-frame-options"), "DENY");
+  assert.ok(initialPage.headers.get("content-security-policy"));
+  assert.equal(initialPage.headers.get("x-powered-by"), null);
+
   // Signed-out API access and admin page protection.
   const unauthenticated = await request("/api/admin/content");
   const unauthenticatedBody = await readJson(unauthenticated, 401);
@@ -447,6 +453,37 @@ test("production auth, CMS, sync, OAuth and public smoke flow", { timeout: 120_0
   assert.equal(validPatchBody.ok, true);
   assert.equal(validPatchBody.section, "githubSettings");
 
+  const missingOrigin = await request("/api/admin/content", {
+    method: "PATCH",
+    cookie: sessionCookie,
+    withOrigin: false,
+    body: {
+      section: "githubSettings",
+      values: { includeForks: false, includeArchived: true, cacheMinutes: 60 },
+    },
+  });
+  const missingOriginBody = await readJson(missingOrigin, 403);
+  assert.equal(missingOriginBody.error, "invalid_origin");
+
+  const unsafeUrl = await request("/api/admin/content", {
+    method: "PATCH",
+    cookie: sessionCookie,
+    body: {
+      section: "socialLinks",
+      values: [
+        {
+          platform: "site",
+          url: "javascript:alert(1)",
+          label: "Site",
+          visible: true,
+          sortOrder: 0,
+        },
+      ],
+    },
+  });
+  const unsafeUrlBody = await readJson(unsafeUrl, 400);
+  assert.equal(unsafeUrlBody.error, "invalid_payload");
+
   // Sync validation, then a cached sync (no GitHub network call).
   markSyncCached();
 
@@ -474,6 +511,33 @@ test("production auth, CMS, sync, OAuth and public smoke flow", { timeout: 120_0
   const cachedSyncBody = await readJson(cachedSync, 200);
   assert.equal(cachedSyncBody.ok, true);
   assert.equal(cachedSyncBody.cached, true);
+
+  const oversizedSync = await request("/api/admin/github/sync", {
+    method: "POST",
+    cookie: sessionCookie,
+    body: "x".repeat(300 * 1024),
+  });
+  const oversizedSyncBody = await readJson(oversizedSync, 413);
+  assert.equal(oversizedSyncBody.error, "payload_too_large");
+
+  // Six valid sync calls per actor per window are allowed; the seventh is throttled.
+  // Invalid and oversized payloads are rejected before consuming a token.
+  for (let call = 0; call < 5; call += 1) {
+    const withinLimit = await request("/api/admin/github/sync", {
+      method: "POST",
+      cookie: sessionCookie,
+      body: {},
+    });
+    await readJson(withinLimit, 200);
+  }
+  const throttledSync = await request("/api/admin/github/sync", {
+    method: "POST",
+    cookie: sessionCookie,
+    body: {},
+  });
+  const throttledBody = await readJson(throttledSync, 429);
+  assert.equal(throttledBody.error, "rate_limited");
+  assert.ok(Number(throttledSync.headers.get("retry-after")) > 0);
 
   // Auth.js builds the GitHub authorization URL with the minimal scope.
   const oauthStart = await authCallback("/api/auth/signin/github", {});
@@ -524,6 +588,14 @@ test("production auth, CMS, sync, OAuth and public smoke flow", { timeout: 120_0
     { headers: { "x-forwarded-for": "203.0.113.77" } },
   );
   assert.equal(spoofed.url.searchParams.get("code"), "too_many_attempts");
+
+  // The Vercel-specific header is never trusted by header presence alone.
+  const spoofedVercel = await authCallback(
+    "/api/auth/callback/credentials",
+    { username: rateUsername, password: wrongPassword },
+    { headers: { "x-vercel-forwarded-for": "203.0.113.78" } },
+  );
+  assert.equal(spoofedVercel.url.searchParams.get("code"), "too_many_attempts");
 
   // Health endpoint confirms the isolated database is reachable.
   const health = await request("/api/health", { withOrigin: false });

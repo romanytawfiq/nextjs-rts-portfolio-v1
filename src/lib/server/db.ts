@@ -164,6 +164,12 @@ CREATE TABLE IF NOT EXISTS auth_login_attempts (
   reset_at INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS api_rate_limits (
+  limit_key TEXT PRIMARY KEY,
+  count INTEGER NOT NULL,
+  reset_at INTEGER NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS audit_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   github_id INTEGER,

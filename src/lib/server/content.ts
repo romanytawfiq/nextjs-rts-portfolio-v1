@@ -2,6 +2,7 @@ import type { DatabaseSync } from "node:sqlite";
 
 import messagesAr from "../../../messages/ar.json";
 import messagesEn from "../../../messages/en.json";
+import type { AdminIdentity } from "@/lib/server/auth-types";
 import { getDb } from "@/lib/server/db";
 import {
   certificationSchema,
@@ -492,16 +493,82 @@ function replaceSimpleRows(
   rows.forEach((row) => insertRow(db, table, columns, map(row)));
 }
 
+// Reuse IDs only from rows read back from SQLite. Client-supplied IDs are never
+// accepted, but stable natural keys keep editor references intact across saves.
+function previousIdMap(
+  rows: Row[],
+  key: (row: Row) => string,
+): Map<string, number> {
+  return new Map(rows.map((row) => [key(row), num(row, "id")]));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function itemLabel(value: unknown, index: number): string {
+  if (!isRecord(value)) return `[${index}]`;
+  for (const key of ["slug", "key", "platform", "title", "name"] as const) {
+    const label = value[key];
+    if (typeof label === "string" && label) return `${key}=${label}`;
+  }
+  return `[${index}]`;
+}
+
+function changedKeys(before: unknown, after: unknown, path = ""): string[] {
+  if (Array.isArray(before) && Array.isArray(after)) {
+    const keys: string[] = [];
+    if (before.length !== after.length) keys.push(`${path || "items"}.length`);
+    for (let index = 0; index < Math.min(before.length, after.length); index += 1) {
+      const segment = `${path || "items"}[${itemLabel(after[index], index)}]`;
+      keys.push(...changedKeys(before[index], after[index], segment));
+    }
+    return keys;
+  }
+
+  if (isRecord(before) && isRecord(after)) {
+    const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
+    return [...keys].flatMap((key) =>
+      changedKeys(before[key], after[key], path ? `${path}.${key}` : key),
+    );
+  }
+
+  if (JSON.stringify(before) !== JSON.stringify(after)) return [path || "value"];
+  return [];
+}
+
+function auditDetail(
+  before: unknown,
+  after: unknown,
+  actor?: Pick<AdminIdentity, "sub" | "login" | "method">,
+): { githubId: number | null; detail: string } {
+  const changes = changedKeys(before, after);
+  const summary = changes.length
+    ? `changed=${changes.slice(0, 20).join(",")}`
+    : "changed=none";
+  if (!actor) return { githubId: null, detail: summary };
+
+  const identity =
+    actor.method === "github"
+      ? `github:${actor.login}#${actor.sub}`
+      : `password:${actor.login}`;
+  return {
+    githubId: actor.method === "github" ? actor.sub : null,
+    detail: `actor=${identity}; ${summary}`,
+  };
+}
+
 export function updateSection(
   section: SectionKey,
   rawValues: unknown,
-  githubId: number | null = null,
+  actor?: Pick<AdminIdentity, "sub" | "login" | "method">,
 ) {
   if (!isSectionKey(section)) {
     throw new Error(`Unknown section: ${section}`);
   }
   const values = sectionSchemas[section].parse(rawValues);
   const db = getDb();
+  const before = getAdminContent().sections[section];
   const now = new Date().toISOString();
 
   db.exec("BEGIN");
@@ -543,13 +610,19 @@ export function updateSection(
       }
       case "socialLinks": {
         const v = socialLinkSchema.array().parse(values);
+        const previous = previousIdMap(
+          db.prepare("SELECT id, platform, url, label FROM social_links").all() as Row[],
+          (row) => JSON.stringify([str(row, "platform"), str(row, "url"), str(row, "label")]),
+        );
         replaceSimpleRows(
           db,
           "social_links",
           ["id", "platform", "url", "label", "visible", "sort_order"],
           v as unknown as Record<string, unknown>[],
           (row) => [
-            (row.id as number) ?? null,
+            previous.get(
+              JSON.stringify([row.platform, row.url, row.label]),
+            ) ?? null,
             row.platform as string,
             row.url as string,
             row.label as string,
@@ -561,6 +634,20 @@ export function updateSection(
       }
       case "skills": {
         const v = skillGroupSchema.array().parse(values);
+        const previousGroups = previousIdMap(
+          db.prepare("SELECT id, key FROM skill_groups").all() as Row[],
+          (row) => str(row, "key"),
+        );
+        const previousSkills = previousIdMap(
+          db
+            .prepare(
+              `SELECT skills.id, skill_groups.key AS group_key, skills.name, skills.sort_order
+               FROM skills JOIN skill_groups ON skill_groups.id = skills.group_id`,
+            )
+            .all() as Row[],
+          (row) =>
+            JSON.stringify([str(row, "group_key"), str(row, "name"), num(row, "sort_order")]),
+        );
         db.prepare("DELETE FROM skills").run();
         db.prepare("DELETE FROM skill_groups").run();
         for (const group of v) {
@@ -570,7 +657,7 @@ export function updateSection(
                VALUES (?, ?, ?, ?, ?, ?)`,
             )
             .run(
-              group.id ?? null,
+              previousGroups.get(group.key) ?? null,
               group.key,
               group.labelEn,
               group.labelAr || null,
@@ -583,7 +670,9 @@ export function updateSection(
               `INSERT INTO skills (id, group_id, name, visible, sort_order)
                VALUES (?, ?, ?, ?, ?)`,
             ).run(
-              skill.id ?? null,
+              previousSkills.get(
+                JSON.stringify([group.key, skill.name, skill.sortOrder]),
+              ) ?? null,
               groupId,
               skill.name,
               skill.visible ? 1 : 0,
@@ -595,6 +684,10 @@ export function updateSection(
       }
       case "projects": {
         const v = projectSchema.array().parse(values);
+        const previous = previousIdMap(
+          db.prepare("SELECT id, slug FROM projects").all() as Row[],
+          (row) => str(row, "slug"),
+        );
         replaceSimpleRows(
           db,
           "projects",
@@ -617,7 +710,7 @@ export function updateSection(
           ],
           v as unknown as Record<string, unknown>[],
           (row) => [
-            (row.id as number) ?? null,
+            previous.get(str(row, "slug")) ?? null,
             row.slug as string,
             row.title as string,
             row.descriptionEn as string,
@@ -638,6 +731,10 @@ export function updateSection(
       }
       case "certifications": {
         const v = certificationSchema.array().parse(values);
+        const previous = previousIdMap(
+          db.prepare("SELECT id, title, issuer FROM certifications").all() as Row[],
+          (row) => JSON.stringify([str(row, "title"), str(row, "issuer")]),
+        );
         replaceSimpleRows(
           db,
           "certifications",
@@ -656,7 +753,7 @@ export function updateSection(
           ],
           v as unknown as Record<string, unknown>[],
           (row) => [
-            (row.id as number) ?? null,
+            previous.get(JSON.stringify([row.title, row.issuer])) ?? null,
             row.title as string,
             row.issuer as string,
             (row.issueDate as string | null) || null,
@@ -708,7 +805,8 @@ export function updateSection(
         break;
       }
     }
-    audit(db, githubId, `content.${section}`, "updated");
+    const log = auditDetail(before, values, actor);
+    audit(db, log.githubId, `content.${section}`, log.detail);
     db.exec("COMMIT");
   } catch (error) {
     db.exec("ROLLBACK");

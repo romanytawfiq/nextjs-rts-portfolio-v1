@@ -2,11 +2,36 @@ import { z } from "zod";
 
 const text = (max: number) => z.string().trim().min(1).max(max);
 const optionalText = (max: number) => z.string().trim().max(max).nullable().optional();
-const url = z.string().trim().url().max(2000);
+
+function isHttpUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return (
+      (parsed.protocol === "http:" || parsed.protocol === "https:") &&
+      !parsed.username &&
+      !parsed.password
+    );
+  } catch {
+    return false;
+  }
+}
+
+const url = z
+  .string()
+  .trim()
+  .max(2000)
+  .refine(isHttpUrl, "Must be an http(s) URL without credentials");
 const optionalUrl = url.nullable().optional();
-// Published assets are served from `/public`, so allow root-relative paths as
-// well as fully qualified URLs for image, resume and certificate files.
-const assetUrl = z.union([url, z.string().trim().startsWith("/").max(2000)]);
+
+// Published assets are served from `/public`. Allow only a single leading
+// slash so `//attacker.example` and `/\attacker.example` cannot become
+// off-origin links.
+const assetPath = z
+  .string()
+  .trim()
+  .max(2000)
+  .regex(/^\/(?![\/\\])/, "Asset paths must start with a single slash");
+const assetUrl = z.union([url, assetPath]);
 const optionalAssetUrl = assetUrl.nullable().optional();
 
 export const profileSchema = z.object({
@@ -29,7 +54,6 @@ export const contactSchema = z.object({
 });
 
 export const socialLinkSchema = z.object({
-  id: z.number().int().positive().optional(),
   platform: text(60),
   url,
   label: text(60),
@@ -38,14 +62,12 @@ export const socialLinkSchema = z.object({
 });
 
 export const skillSchema = z.object({
-  id: z.number().int().positive().optional(),
   name: text(120),
   visible: z.boolean(),
   sortOrder: z.number().int().min(0).max(10000),
 });
 
 export const skillGroupSchema = z.object({
-  id: z.number().int().positive().optional(),
   key: z
     .string()
     .trim()
@@ -59,7 +81,6 @@ export const skillGroupSchema = z.object({
 });
 
 export const projectSchema = z.object({
-  id: z.number().int().positive().optional(),
   slug: z
     .string()
     .trim()
@@ -79,7 +100,6 @@ export const projectSchema = z.object({
 });
 
 export const certificationSchema = z.object({
-  id: z.number().int().positive().optional(),
   title: text(180),
   issuer: text(120),
   issueDate: optionalText(40),

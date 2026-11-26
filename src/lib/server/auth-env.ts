@@ -3,8 +3,20 @@ import { isPasswordLoginConfigured } from "@/lib/server/password";
 // Auth.js uses AUTH_SECRET. SESSION_SECRET is still accepted so existing local
 // and VPS environments keep working while the deployment is migrated.
 export function authSecret(): string | null {
-  const secret = process.env.AUTH_SECRET ?? process.env.SESSION_SECRET;
-  return secret && secret.length >= 32 ? secret : null;
+  // Check both candidates by length: a short AUTH_SECRET must not suppress a
+  // valid legacy SESSION_SECRET.
+  const candidates = [process.env.AUTH_SECRET, process.env.SESSION_SECRET];
+  return candidates.find((secret) => Boolean(secret && secret.length >= 32)) ?? null;
+}
+
+// Pass this to Auth.js so it can never fall back to a raw/legacy environment
+// variable that bypasses our length policy.
+export function requireAuthSecret(): string {
+  const secret = authSecret();
+  if (!secret) {
+    throw new Error("AUTH_SECRET (or SESSION_SECRET) must be at least 32 characters.");
+  }
+  return secret;
 }
 
 export function allowedAdminId(): number | null {

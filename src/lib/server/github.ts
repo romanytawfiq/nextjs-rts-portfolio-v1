@@ -27,6 +27,7 @@ export type SyncResult = {
 };
 
 const MAX_PAGES = 10;
+const FORCE_COOLDOWN_MS = 60 * 1000;
 
 function rowString(row: Record<string, unknown> | undefined, key: string) {
   return String(row?.[key] ?? "");
@@ -46,9 +47,10 @@ export async function syncPublicRepos(
   const token = process.env.GITHUB_TOKEN?.trim();
   const repos: GitHubRepo[] = [];
 
-  if (!options.force && lastSyncAt) {
+  if (lastSyncAt) {
     const ageMs = Date.now() - new Date(lastSyncAt).getTime();
-    if (Number.isFinite(ageMs) && ageMs < cacheMinutes * 60_000) {
+    const cooldownMs = options.force ? FORCE_COOLDOWN_MS : cacheMinutes * 60_000;
+    if (Number.isFinite(ageMs) && ageMs >= 0 && ageMs < cooldownMs) {
       const cached = db.prepare("SELECT COUNT(*) AS total FROM github_repos").get();
       return {
         ok: true,

@@ -91,7 +91,8 @@ export async function requireAdminPage(locale: string): Promise<Session> {
 export async function authorizeApi(
   request: Request,
 ): Promise<{ ok: true; session: Session } | { ok: false; response: Response }> {
-  if (!isAllowedOrigin(request)) {
+  const isMutation = !["GET", "HEAD", "OPTIONS"].includes(request.method.toUpperCase());
+  if (!isAllowedOrigin(request, isMutation)) {
     return {
       ok: false,
       response: Response.json({ error: "invalid_origin" }, { status: 403 }),

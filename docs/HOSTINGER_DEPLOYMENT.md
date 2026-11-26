@@ -56,7 +56,24 @@ Set these under **Environment variables**. They persist across deployments and a
 | `GITHUB_TOKEN` | Optional read-only token with **no** `repo` scope; leave empty to use anonymous GitHub rate limits. |
 | `SITE_URL` | Approved production origin, e.g. `https://<domain>`. |
 | `TRUST_PROXY` | Leave empty until Hostinger's proxy headers are verified. |
+| `TRUST_PROXY_HOPS` | `0` when the proxy sets `X-Forwarded-For` to `$remote_addr`; increase only for a known chain of trusted proxies. |
 | `SQLITE_PATH` | Persistent path from section 3. |
+
+### 4.1 Reverse proxy headers
+
+The password limiter trusts forwarded headers only when `TRUST_PROXY=1`. Configure nginx to **overwrite**, not append, client-supplied values:
+
+```nginx
+proxy_set_header Host $host;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $remote_addr;
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header X-Vercel-Forwarded-For "";
+```
+
+Never trust header presence alone: any client can send `X-Forwarded-For` or `X-Vercel-Forwarded-For`. Keep `TRUST_PROXY` empty until the values above are in place, then set `TRUST_PROXY=1` and `TRUST_PROXY_HOPS=0`. Reject unknown `Host` values at the edge so the canonical origin cannot be substituted.
+
+`next.config.ts` already emits `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, a baseline CSP, and HSTS in production. Do not add conflicting copies in nginx; verify them with `curl -I https://<domain>/en` after HTTPS is active.
 
 ## 5. Initial admin credential
 
@@ -97,6 +114,8 @@ SELECT COUNT(*) FROM projects;
 - [ ] `/` redirects to `/ar`; `/en` still works.
 - [ ] `/api/health` returns `200 { ok: true }`.
 - [ ] Password login works; GitHub sign-in works with the allowlisted ID; a non-allowlisted account is rejected.
+- [ ] Spoofed `X-Forwarded-For` / `X-Vercel-Forwarded-For` values cannot create fresh login buckets.
+- [ ] Security headers are present and `X-Powered-By` is absent on HTTPS responses.
 - [ ] A CMS edit survives a redeploy (proves the SQLite path is durable).
 - [ ] Backup and restore drill passes.
 - [ ] No secret or backup file is inside the repo or `public_html`.

@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { authorizeApi } from "@/lib/server/auth";
 import { syncPublicRepos } from "@/lib/server/github";
+import { checkRateLimit } from "@/lib/server/rate-limit";
+import { BodyTooLargeError, readJsonBody } from "@/lib/server/request-body";
 
 const syncBodySchema = z
   .object({ force: z.boolean().optional() })
@@ -12,24 +14,30 @@ export async function POST(request: Request) {
   const auth = await authorizeApi(request);
   if (!auth.ok) return auth.response;
 
-  let force = false;
-  const text = await request.text();
-  if (text.trim()) {
-    let body: unknown;
-    try {
-      body = JSON.parse(text);
-    } catch {
-      return Response.json({ error: "invalid_json" }, { status: 400 });
+  let body: unknown;
+  try {
+    body = await readJsonBody(request);
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) {
+      return Response.json({ error: "payload_too_large" }, { status: 413 });
     }
-
-    const parsed = syncBodySchema.safeParse(body);
-    if (!parsed.success) {
-      return Response.json({ error: "invalid_payload" }, { status: 400 });
-    }
-    force = parsed.data.force ?? false;
+    return Response.json({ error: "invalid_json" }, { status: 400 });
   }
 
-  const result = await syncPublicRepos(auth.session.sub, { force });
+  const parsed = syncBodySchema.safeParse(body);
+  if (!parsed.success) {
+    return Response.json({ error: "invalid_payload" }, { status: 400 });
+  }
+
+  const rate = checkRateLimit(`github-sync:${auth.session.sub}`, 6, 10 * 60_000);
+  if (!rate.ok) {
+    return Response.json(
+      { error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
+
+  const result = await syncPublicRepos(auth.session.sub, { force: parsed.data.force ?? false });
   revalidatePath("/en");
   revalidatePath("/ar");
   revalidatePath("/en/admin/github");
