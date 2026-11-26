@@ -3,18 +3,20 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
+  color-scheme: light;
   --background: #f6f4ef;
   --surface: #ffffff;
   --surface-muted: #efece4;
   --foreground: #1b1d1a;
   --muted: #5d615b;
   --line: #d9d5cb;
-  --accent: #a8510b;
+  --accent: #994600;
   --accent-soft: #f7e8d6;
   --accent-contrast: #ffffff;
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --background: #0d1110;
   --surface: #141a18;
   --surface-muted: #1a211f;

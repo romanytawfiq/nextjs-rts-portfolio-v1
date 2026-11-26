@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 
 import { GitHubIcon, LinkedInIcon, MapPinIcon } from "@/components/icons";
+import { Localized } from "@/components/localized";
 import { ExternalLink } from "@/components/ui";
 import type { Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
@@ -16,6 +17,7 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
   const t = await getDictionary(locale);
   const content = getPublicContent();
   const year = await getCopyrightYear();
+  const arabic = locale === "ar";
   const whatsapp = content.contact.whatsapp;
   const socialLinks = content.socialLinks;
 
@@ -25,14 +27,14 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <p className="text-lg font-semibold tracking-tight text-foreground">
-              {content.profile.name}
+              <Localized value={content.profile.name} arabic={arabic} />
             </p>
             <p className="mt-1 text-sm text-muted">{t.footer.role}</p>
             <p className="mt-4 flex items-start gap-2 text-xs leading-6 text-muted">
               <MapPinIcon className="mt-0.5 size-4 shrink-0 text-accent" />
               <span>
                 <span className="sr-only">{t.hero.locationLabel}: </span>
-                {content.profile.location}
+                <Localized value={content.profile.location} arabic={arabic} />
               </span>
             </p>
             <p className="mt-4 max-w-xs text-xs leading-6 text-muted">{t.footer.note}</p>
@@ -47,7 +49,7 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
                 <a
                   href={`tel:+20${content.contact.phone.replace(/^0/, "")}`}
                   dir="ltr"
-                  className="w-fit text-sm font-medium text-foreground transition-colors hover:text-accent"
+                  className="inline-flex min-h-11 w-fit items-center text-sm font-medium text-foreground transition-colors hover:text-accent"
                 >
                   {content.contact.phone}
                 </a>
@@ -62,7 +64,7 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     dir="ltr"
-                    className="mt-1 inline-block text-sm font-medium text-foreground transition-colors hover:text-accent"
+                    className="mt-1 inline-flex min-h-11 items-center text-sm font-medium text-foreground transition-colors hover:text-accent"
                   >
                     {whatsapp}
                   </a>
@@ -83,7 +85,7 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
                   ) : link.platform === "LinkedIn" ? (
                     <LinkedInIcon className="size-4" />
                   ) : null}
-                  {link.label}
+                  <Localized value={link.label} arabic={arabic} />
                 </ExternalLink>
               ))}
             </div>
@@ -92,7 +94,7 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
 
         <div className="mt-10 flex flex-col gap-2 border-t border-line pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {year} {content.profile.name}. {t.footer.rights}
+            © {year} <Localized value={content.profile.name} arabic={arabic} />. {t.footer.rights}
           </p>
           <p>{t.footer.source}</p>
         </div>

@@ -45,6 +45,7 @@
       "kicker": "Work",
       "stackLabel": "Stack",
       "featuresLabel": "Features",
+      "noStack": "No stack information available yet.",
       "githubDescription": "Public repository synchronized from GitHub.",
       "githubSource": "Synced from GitHub"
     },

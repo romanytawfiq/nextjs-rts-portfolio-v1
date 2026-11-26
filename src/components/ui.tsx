@@ -37,7 +37,7 @@ export function ExternalLink({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 rounded-md text-sm font-medium text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent ${className}`}
+      className={`inline-flex min-h-11 items-center gap-2 rounded-md text-sm font-medium text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent ${className}`}
     >
       {children}
       <ArrowUpRightIcon className="size-4" />

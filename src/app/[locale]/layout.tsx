@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 
+import { localize } from "@/lib/arabic-copy";
 import { profile } from "@/lib/content";
 import { defaultLocale, getDictionary, isLocale, locales } from "@/lib/i18n";
 import { getSettings } from "@/lib/server/content";
@@ -47,8 +48,9 @@ export async function generateMetadata({
   const settings = getSettings();
   // Fall back to the current locale's catalog, never to the other language's
   // admin-entered SEO copy.
-  const siteTitle =
-    (activeLocale === "ar" ? settings.seoTitleAr ?? t.metaTitle : settings.seoTitleEn ?? t.metaTitle);
+  const storedTitle =
+    activeLocale === "ar" ? settings.seoTitleAr ?? t.metaTitle : settings.seoTitleEn ?? t.metaTitle;
+  const siteTitle = activeLocale === "ar" ? localize(storedTitle, true) : storedTitle;
   const siteDescription =
     activeLocale === "ar"
       ? settings.seoDescriptionAr ?? t.metaDescription

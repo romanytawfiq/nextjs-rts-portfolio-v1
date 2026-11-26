@@ -18,7 +18,7 @@
       "ctaPrimary": "اطّلع على أعمالي",
       "ctaSecondary": "تواصل معي",
       "locationLabel": "الإقامة",
-      "cv": "CV"
+      "cv": "السيرة الذاتية"
     },
     "about": {
       "title": "نبذة",
@@ -45,6 +45,7 @@
       "kicker": "الأعمال",
       "stackLabel": "التقنيات",
       "featuresLabel": "المزايا",
+      "noStack": "لا توجد تقنيات مُحددة بعد.",
       "githubDescription": "مستودع عام تمت مزامنته من GitHub.",
       "githubSource": "مزامن من GitHub"
     },

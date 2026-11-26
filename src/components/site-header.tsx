@@ -27,7 +27,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4">
         <Link
           href={`/${locale}`}
-          className="text-lg font-semibold tracking-tight text-foreground"
+          className="inline-flex min-h-11 items-center text-lg font-semibold tracking-tight text-foreground"
         >
           RTS<span className="text-accent">.</span>
         </Link>
@@ -37,7 +37,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
             <a
               key={item.href}
               href={item.href}
-              className="text-sm text-muted transition-colors hover:text-foreground"
+              className="inline-flex min-h-11 items-center text-sm text-muted transition-colors hover:text-foreground"
             >
               {item.label}
             </a>
@@ -53,7 +53,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               href="/en"
               hrefLang="en"
               aria-current={locale === "en" ? "true" : undefined}
-              className={`rounded-full px-2.5 py-1 transition-colors ${
+              className={`inline-flex min-h-10 min-w-11 items-center justify-center rounded-full px-2.5 transition-colors ${
                 locale === "en" ? "bg-accent text-accent-contrast" : "text-muted hover:text-foreground"
               }`}
             >
@@ -63,7 +63,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               href="/ar"
               hrefLang="ar"
               aria-current={locale === "ar" ? "true" : undefined}
-              className={`rounded-full px-2.5 py-1 transition-colors ${
+              className={`inline-flex min-h-10 min-w-11 items-center justify-center rounded-full px-2.5 transition-colors ${
                 locale === "ar" ? "bg-accent text-accent-contrast" : "text-muted hover:text-foreground"
               }`}
             >
@@ -76,13 +76,13 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
 
       <nav
         aria-label={t.nav.about}
-        className="flex gap-5 overflow-x-auto border-t border-line px-5 py-3 md:hidden"
+        className="flex gap-5 overflow-x-auto border-t border-line px-5 py-1.5 md:hidden"
       >
         {navItems.map((item) => (
           <a
             key={item.href}
             href={item.href}
-            className="whitespace-nowrap text-xs text-muted transition-colors hover:text-foreground"
+            className="inline-flex min-h-11 items-center whitespace-nowrap text-xs text-muted transition-colors hover:text-foreground"
           >
             {item.label}
           </a>

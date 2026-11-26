@@ -70,6 +70,7 @@ export async function getDictionary(locale: Locale): Promise<Dictionary> {
       "kicker": t("projects.kicker"),
       "stackLabel": t("projects.stackLabel"),
       "featuresLabel": t("projects.featuresLabel"),
+      "noStack": t("projects.noStack"),
       "githubDescription": t("projects.githubDescription"),
       "githubSource": t("projects.githubSource"),
     },

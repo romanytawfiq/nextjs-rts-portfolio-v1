@@ -2,6 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { GitHubIcon, LinkedInIcon, MapPinIcon } from "@/components/icons";
+import { Localized } from "@/components/localized";
 import { Reveal } from "@/components/reveal";
 import { Chip, ExternalLink, SectionHeading } from "@/components/ui";
 import { languages } from "@/lib/content";
@@ -29,13 +30,16 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
               {t.hero.kicker}
             </p>
             <h1 className="mt-6 text-balance text-5xl font-semibold tracking-tight sm:text-6xl lg:text-7xl">
-              {content.profile.name}
+              {arabic ? <span lang="en">{content.profile.name}</span> : content.profile.name}
             </h1>
-            <p className="mt-4 text-xl text-muted sm:text-2xl">{content.profile.title}</p>
+            <p className="mt-4 text-xl text-muted sm:text-2xl">
+              <Localized value={content.profile.title} arabic={arabic} />
+            </p>
             <p className="mt-6 flex items-center gap-2 text-sm text-muted">
               <MapPinIcon className="size-4 text-accent" />
               <span>
-                {t.hero.locationLabel}: {content.profile.location}
+                {t.hero.locationLabel}:{" "}
+                <Localized value={content.profile.location} arabic={arabic} />
               </span>
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
@@ -79,7 +83,9 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                 <span className="select-none text-7xl font-semibold tracking-tighter text-foreground/90">
                   RTS
                 </span>
-                <span className="text-xs text-muted">{content.profile.title}</span>
+                <span className="text-xs text-muted">
+                  <Localized value={content.profile.title} arabic={arabic} />
+                </span>
               </div>
             )}
           </aside>
@@ -101,7 +107,8 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                 <dd className="mt-3 space-y-1 text-sm text-foreground">
                   {languages.map((language) => (
                     <p key={language.name}>
-                      {language.name} — {language.level}
+                      <Localized value={language.name} arabic={arabic} /> —{" "}
+                      <Localized value={language.level} arabic={arabic} />
                     </p>
                   ))}
                 </dd>
@@ -126,7 +133,9 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                   </h3>
                   <ul className="mt-4 flex flex-wrap gap-2">
                     {group.skills.map((skill) => (
-                      <Chip key={skill}>{skill}</Chip>
+                      <Chip key={skill}>
+                        <Localized value={skill} arabic={arabic} />
+                      </Chip>
                     ))}
                   </ul>
                 </article>
@@ -150,21 +159,37 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                     ? t.projects.githubSource
                     : `0${index + 1}`}
                 </span>
-                <h3 className="mt-3 text-xl font-semibold text-foreground">{project.title}</h3>
+                <h3 className="mt-3 text-xl font-semibold text-foreground">
+                  <Localized value={project.title} arabic={arabic} />
+                </h3>
                 <p className="mt-3 leading-7 text-muted">
-                  {arabic ? project.descriptionAr ?? project.descriptionEn : project.descriptionEn}
+                  {arabic ? (
+                    project.descriptionAr ? (
+                      <Localized value={project.descriptionAr} arabic={arabic} />
+                    ) : (
+                      <Localized value={project.descriptionEn} arabic={arabic} />
+                    )
+                  ) : (
+                    project.descriptionEn
+                  )}
                 </p>
 
-                <div className="mt-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted">
-                    {t.projects.stackLabel}
-                  </p>
-                  <ul className="mt-3 flex flex-wrap gap-2">
-                    {project.stack.map((technology) => (
-                      <Chip key={technology}>{technology}</Chip>
-                    ))}
-                  </ul>
-                </div>
+                {project.stack.length > 0 ? (
+                  <div className="mt-6">
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                      {t.projects.stackLabel}
+                    </p>
+                    <ul className="mt-3 flex flex-wrap gap-2">
+                      {project.stack.map((technology) => (
+                        <Chip key={technology}>
+                          <Localized value={technology} arabic={arabic} />
+                        </Chip>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <p className="mt-6 text-sm text-muted">{t.projects.noStack}</p>
+                )}
 
                 {project.features.length > 0 && (
                   <div className="mt-6">
@@ -177,7 +202,7 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                           <span aria-hidden="true" className="text-accent">
                             ·
                           </span>
-                          {feature}
+                          <Localized value={feature} arabic={arabic} />
                         </li>
                       ))}
                     </ul>
@@ -187,10 +212,14 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                 {(project.repoUrl || (project.source !== "github" && project.demoUrl)) && (
                   <div className="mt-auto flex flex-wrap gap-2 pt-8">
                     {project.repoUrl && (
-                      <ExternalLink href={project.repoUrl}>GitHub</ExternalLink>
+                      <ExternalLink href={project.repoUrl}>
+                        <Localized value="GitHub" arabic={arabic} />
+                      </ExternalLink>
                     )}
                     {project.source !== "github" && project.demoUrl && (
-                      <ExternalLink href={project.demoUrl}>Demo</ExternalLink>
+                      <ExternalLink href={project.demoUrl}>
+                        <Localized value="Demo" arabic={arabic} />
+                      </ExternalLink>
                     )}
                   </div>
                 )}
@@ -215,9 +244,13 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                 <ul className="mt-5 grid gap-3">
                   {content.github.repos.map((repo) => (
                     <li key={repo.fullName} className="rounded-lg border border-line p-3">
-                      <ExternalLink href={repo.htmlUrl}>{repo.fullName}</ExternalLink>
+                      <ExternalLink href={repo.htmlUrl}>
+                        <span lang="en">{repo.fullName}</span>
+                      </ExternalLink>
                       {repo.description && (
-                        <p className="mt-2 text-sm text-muted">{repo.description}</p>
+                        <p className="mt-2 text-sm text-muted">
+                          <Localized value={repo.description} arabic={arabic} />
+                        </p>
                       )}
                     </li>
                   ))}
@@ -238,14 +271,16 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
           <Reveal className="grid gap-4">
             {content.certifications.map((item) => (
               <article key={item.title} className="rounded-2xl border border-line bg-surface p-6">
-                <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
+                <h3 className="text-xl font-semibold text-foreground">
+                  <Localized value={item.title} arabic={arabic} />
+                </h3>
                 <p className="mt-4 text-sm text-muted">
                   <span className="uppercase tracking-[0.2em]">{t.certification.issuerLabel}</span>:{" "}
                   {item.issuer}
                 </p>
                 {item.issueDate && (
-                  <p dir="ltr" className="mt-2 text-sm text-muted">
-                    {item.issueDate}
+                  <p dir={arabic ? "rtl" : "ltr"} className="mt-2 text-sm text-muted">
+                    <Localized value={item.issueDate} arabic={arabic} />
                   </p>
                 )}
                 {item.coverage.length > 0 && (
@@ -255,7 +290,9 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                     </p>
                     <ul className="mt-3 flex flex-wrap gap-2">
                       {item.coverage.map((coverage) => (
-                        <Chip key={coverage}>{coverage}</Chip>
+                        <Chip key={coverage}>
+                          <Localized value={coverage} arabic={arabic} />
+                        </Chip>
                       ))}
                     </ul>
                   </div>
@@ -321,7 +358,7 @@ export default async function PortfolioPage({ params }: PageProps<"/[locale]">) 
                       ) : link.platform === "LinkedIn" ? (
                         <LinkedInIcon className="size-4" />
                       ) : null}
-                      {link.label}
+                      <Localized value={link.label} arabic={arabic} />
                     </ExternalLink>
                   ))}
                 </div>
