@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 
 import messagesAr from "../../messages/ar.json";
 import messagesEn from "../../messages/en.json";
@@ -62,8 +63,12 @@ export default function GlobalNotFound() {
   return (
     <html lang="ar" dir="rtl" className="h-full" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-        <script dangerouslySetInnerHTML={{ __html: localeInit }} />
+        <Script id="rts-global-theme-init" strategy="beforeInteractive">
+          {themeInit}
+        </Script>
+        <Script id="rts-global-locale-init" strategy="beforeInteractive">
+          {localeInit}
+        </Script>
       </head>
       <body className="flex min-h-full items-center justify-center bg-background px-5 py-20 text-foreground antialiased">
         <div className="grid w-full max-w-4xl gap-10 md:grid-cols-2">
