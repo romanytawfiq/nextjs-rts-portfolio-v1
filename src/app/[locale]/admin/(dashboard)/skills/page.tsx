@@ -44,7 +44,7 @@ export default async function AdminSkillsPage({
 
   return (
     <>
-      <AdminPageHeader title={page.title} subtitle={page.subtitle} notice={c.common.editorNotice} />
+      <AdminPageHeader title={page.title} subtitle={page.subtitle} />
       <div className="grid gap-4 lg:grid-cols-2">
         {groups.map((group) => (
           <AdminCard key={group.key} title={publicCopy.skills.groups[group.key as keyof typeof publicCopy.skills.groups] ?? group.labelEn}>

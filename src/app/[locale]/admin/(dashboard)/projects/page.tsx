@@ -49,7 +49,7 @@ export default async function AdminProjectsPage({
 
   return (
     <>
-      <AdminPageHeader title={page.title} subtitle={page.subtitle} notice={c.common.editorNotice} />
+      <AdminPageHeader title={page.title} subtitle={page.subtitle} />
       <div className="grid gap-6">
         {projects.map((project) => (
           <AdminCard key={project.slug} title={project.title}>

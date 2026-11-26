@@ -37,7 +37,7 @@ export default async function AdminContactPage({
 
   return (
     <>
-      <AdminPageHeader title={page.title} subtitle={page.subtitle} notice={c.common.editorNotice} />
+      <AdminPageHeader title={page.title} subtitle={page.subtitle} />
       <AdminCard>
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label={c.form.phone}>

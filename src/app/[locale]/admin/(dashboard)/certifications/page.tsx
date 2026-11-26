@@ -45,7 +45,7 @@ export default async function AdminCertificationsPage({
 
   return (
     <>
-      <AdminPageHeader title={page.title} subtitle={page.subtitle} notice={c.common.editorNotice} />
+      <AdminPageHeader title={page.title} subtitle={page.subtitle} />
       {certifications.map((certification) => (
         <AdminCard key={certification.title} title={certification.title}>
           <p className="text-sm text-muted">

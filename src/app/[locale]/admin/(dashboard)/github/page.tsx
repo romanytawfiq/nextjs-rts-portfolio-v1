@@ -36,7 +36,7 @@ export default async function AdminGitHubPage({
 
   return (
     <>
-      <AdminPageHeader title={page.title} subtitle={page.subtitle} notice={c.common.editorNotice} />
+      <AdminPageHeader title={page.title} subtitle={page.subtitle} />
       <div className="grid gap-6 lg:grid-cols-2">
         <AdminCard title={c.github.connectTitle}>
           <div className="flex items-center gap-3">

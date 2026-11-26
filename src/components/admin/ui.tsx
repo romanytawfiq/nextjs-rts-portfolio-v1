@@ -16,15 +16,17 @@ export function AdminPageHeader({
 }: {
   title: string;
   subtitle: string;
-  notice: string;
+  notice?: string;
 }) {
   return (
     <div className="mb-8">
       <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
       <p className="mt-2 text-sm text-muted">{subtitle}</p>
-      <p className="mt-4 rounded-lg border border-dashed border-accent/50 bg-accent-soft px-4 py-3 text-xs text-accent">
-        {notice}
-      </p>
+      {notice ? (
+        <p className="mt-4 rounded-lg border border-dashed border-accent/50 bg-accent-soft px-4 py-3 text-xs text-accent">
+          {notice}
+        </p>
+      ) : null}
     </div>
   );
 }

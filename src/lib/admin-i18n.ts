@@ -109,7 +109,6 @@ export async function getAdminCopy(locale: Locale): Promise<AdminCopy> {
       "dark": t("common.dark"),
       "system": t("common.system"),
       "none": t("common.none"),
-      "editorNotice": t("common.editorNotice"),
       "jsonEditor": t("common.jsonEditor"),
       "saved": t("common.saved"),
       "invalidJson": t("common.invalidJson"),

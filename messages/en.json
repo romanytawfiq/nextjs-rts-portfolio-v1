@@ -69,7 +69,6 @@
     },
     "footer": {
       "note": "Built for clarity, accessibility and both reading directions.",
-      "source": "Content sourced from the owner's CV.",
       "role": "Junior Front-End Developer",
       "rights": "All rights reserved."
     }
@@ -169,7 +168,6 @@
       "dark": "Dark",
       "system": "System",
       "none": "None",
-      "editorNotice": "Changes are saved to the local SQLite database and validated on the server.",
       "jsonEditor": "Structured editor — validated with Zod before saving",
       "saved": "Saved",
       "invalidJson": "Invalid JSON or field value"

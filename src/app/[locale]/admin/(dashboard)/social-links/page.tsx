@@ -47,7 +47,7 @@ export default async function AdminSocialLinksPage({
 
   return (
     <>
-      <AdminPageHeader title={page.title} subtitle={page.subtitle} notice={c.common.editorNotice} />
+      <AdminPageHeader title={page.title} subtitle={page.subtitle} />
       <AdminCard>
         <AdminTable
           headers={[c.form.platform, c.form.url, c.form.visibility, c.common.order]}

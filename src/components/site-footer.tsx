@@ -96,7 +96,6 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
           <p>
             © {year} <Localized value={content.profile.name} arabic={arabic} />. {t.footer.rights}
           </p>
-          <p>{t.footer.source}</p>
         </div>
       </div>
     </footer>

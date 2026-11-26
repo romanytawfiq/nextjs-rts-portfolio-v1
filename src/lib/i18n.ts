@@ -94,7 +94,6 @@ export async function getDictionary(locale: Locale): Promise<Dictionary> {
     },
     "footer": {
       "note": t("footer.note"),
-      "source": t("footer.source"),
       "role": t("footer.role"),
       "rights": t("footer.rights"),
     },
